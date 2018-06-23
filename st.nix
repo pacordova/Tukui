@@ -4,7 +4,7 @@ stdenv.mkDerivation rec {
     name = "st";
     src = fetchurl {
         url = "https://gitlab.com/pacmeister/st/-/archive/master/st-master.tar.gz";
-        sha256 = "";
+        sha256 = null;
     };
     nativeBuildInputs = [ pkgconfig ];
     buildInputs = [ xorg.libX11 ncurses xorg.libXext xorg.libXft fontconfig ];
