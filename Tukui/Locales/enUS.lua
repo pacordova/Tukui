@@ -48,12 +48,6 @@ L.DataText.Slots = {
 }
 
 ------------------------------------------------
-L.UnitFrames = {} -- Unit Frames Locales
-------------------------------------------------
-
-L.UnitFrames.Ghost = "Ghost"
-
-------------------------------------------------
 L.ActionBars = {} -- Action Bars Locales
 ------------------------------------------------
 
@@ -131,6 +125,7 @@ L.Help = {} -- /tukui help
 
 L.Help.Title = "Tukui Commands:"
 L.Help.Config = "'|cff00ff00c|r' or '|cff00ff00config|r' : Display in-game configuration window."
+L.Help.Chat = "'|cff00ff00chat reset|r' : Reset chat windows to default."
 L.Help.Datatexts = "'|cff00ff00dt|r' or '|cff00ff00datatext|r' : Enable or disable datatext configuration."
 L.Help.Events = "'|cff00ff00events|r' or '|cff00ff00trace|r' : For devs, toggle events printing in chat."
 L.Help.Gold = "'|cff00ff00gold reset|r' : Reset all characters gold data stored on current server."
@@ -142,6 +137,7 @@ L.Help.Move = "'|cff00ff00move|r' or '|cff00ff00moveui|r' : Move Frames."
 L.Help.Profile = "'|cff00ff00profile|r' or '|cff00ff00p|r' : Use Tukui settings (existing profile) from another character."
 L.Help.Status = "'|cff00ff00status|r' or '|cff00ff00debug|r' : Show a debug window with information needed to investigate a bug in the UI"
 L.Help.Test = "'|cff00ff00test|r' or '|cff00ff00testui|r' : Test Unit Frames."
+L.Help.ChatMove = "Please use |cff00ff00/tukui move|r and move datatexts to move chatframes"
 
 ------------------------------------------------
 L.Merchant = {} -- Merchant

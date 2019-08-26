@@ -14,6 +14,7 @@ Minimap.ZoneColors = {
 }
 
 function Minimap:DisableMinimapElements()
+	local Time = _G["TimeManagerClockButton"]
 	local North = _G["MinimapNorthTag"]
 	local HiddenFrames = {
 		"MinimapCluster",
@@ -37,6 +38,10 @@ function Minimap:DisableMinimapElements()
 	end
 
 	North:SetTexture(nil)
+	
+	if Time then
+		Time:Kill()
+	end
 end
 
 function Minimap:OnMouseClick(button)
@@ -257,17 +262,14 @@ function Minimap:EnableMouseOver()
 	end)
 end
 
-function Minimap:Enable()
-	local Time = _G["TimeManagerClockButton"]
+function Minimap:SizeMinimap()
+	local X, Y = self:GetSize()
+	local Scale = C.General.MinimapScale / 100
+	
+	self:Size(X * Scale, Y * Scale)
+end
 
-	self:DisableMinimapElements()
-	self:StyleMinimap()
-	self:PositionMinimap()
-	self:AddMinimapDataTexts()
-	self:AddZoneAndCoords()
-	self:EnableMouseOver()
-
-	-- Fix a Blizzard Bug, which mouse wheel zoom was not working.
+function Minimap:EnableMouseWheelZoom()
 	self:EnableMouseWheel(true)
 	self:SetScript("OnMouseWheel", function(self, delta)
 		if (delta > 0) then
@@ -276,10 +278,17 @@ function Minimap:Enable()
 			MinimapZoomOut:Click()
 		end
 	end)
+end
 
-	if Time then
-		Time:Kill()
-	end
+function Minimap:Enable()
+	self:DisableMinimapElements()
+	self:SizeMinimap()
+	self:StyleMinimap()
+	self:PositionMinimap()
+	self:AddMinimapDataTexts()
+	self:AddZoneAndCoords()
+	self:EnableMouseOver()
+	self:EnableMouseWheelZoom()
 end
 
 T["Maps"].Minimap = Minimap

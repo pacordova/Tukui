@@ -40,6 +40,10 @@ function TukuiChat:UpdateEditBoxColor()
 	end
 end
 
+function TukuiChat:LockChat()
+	T.Print(L.Help.ChatMove)
+end
+
 function TukuiChat:MoveAudioButtons()
 	ChatFrameChannelButton:Kill()
 end
@@ -163,11 +167,6 @@ function TukuiChat:StyleFrame(frame)
 	_G[format("ChatFrame%sEditBoxMid", ID)]:Kill()
 	_G[format("ChatFrame%sEditBoxRight", ID)]:Kill()
 
-	-- Justify loot frame text at the right
-	if (not Frame.isDocked and ID == 4 and TabText:GetText() == self.RightChatName) then
-		Frame:SetJustifyH("RIGHT")
-	end
-
 	-- Mouse Wheel
 	Frame:SetScript("OnMouseWheel", TukuiChat.OnMouseWheel)
 
@@ -252,34 +251,84 @@ function TukuiChat:SaveChatFramePositionAndDimensions()
 	TukuiData[GetRealmName()][UnitName("Player")].Chat["Frame" .. ID] = {Anchor1, Anchor2, X, Y, Width, Height}
 end
 
+function TukuiChat:RemoveRightChat()
+	local Panels = T.Panels
+	
+	Panels.RightChatBG:Hide()
+
+	if C.Misc.ExperienceEnable then
+		local XP = T.Miscellaneous.Experience.XPBar2
+		
+		XP:Hide()
+	end
+
+	Panels.DataTextRight:Hide()
+end
+
 function TukuiChat:SetChatFramePosition()
 	if (not TukuiData[GetRealmName()][UnitName("Player")].Chat) then
 		return
 	end
-
+	
 	local Frame = self
+	local ID = Frame:GetID()
 
 	if not Frame:IsMovable() then
+		if C.General.Themes.Value == "Tukui 18" and ID == 4 then
+			TukuiChat:RemoveRightChat()
+		end
+		
 		return
 	end
-
-	local ID = Frame:GetID()
+	
 	local Settings = TukuiData[GetRealmName()][UnitName("Player")].Chat["Frame" .. ID]
 
 	if Settings then
-		local Anchor1, Anchor2, X, Y, Width, Height = unpack(Settings)
+		if C.General.Themes.Value == "Tukui 18" then
+			local Anchor1, Anchor2, X, Y, Width, Height = unpack(Settings)
+			local Movers = T.Movers
+			local Panels = T.Panels
 
-		Frame:SetUserPlaced(true)
-		Frame:ClearAllPoints()
-		Frame:SetPoint(Anchor1, UIParent, Anchor2, X, Y)
-		Frame:SetSize(Width, Height)
+			if ID == 1 then
+				Frame:SetParent(Panels.DataTextLeft)
+				Frame:SetUserPlaced(true)
+				Frame:ClearAllPoints()
+				Frame:SetSize(Width, Height + 7)
+				Frame:SetPoint("BOTTOMLEFT", Panels.DataTextLeft, "TOPLEFT", 0, 2)
+				
+				Movers:RegisterFrame(T.Panels.DataTextLeft)
+			elseif ID == 4 and (not Frame:IsShown() or Frame.isDocked) then
+				TukuiChat:RemoveRightChat()
+			elseif ID == 4 then
+				Frame:SetParent(Panels.DataTextRight)
+				Frame:SetUserPlaced(true)
+				Frame:ClearAllPoints()
+				Frame:SetSize(Width, Height + 7)
+				Frame:SetPoint("BOTTOMLEFT", Panels.DataTextRight, "TOPLEFT", 0, 2)
+				Frame:SetJustifyH("RIGHT")
+				
+				Frame:HookScript("OnHide", TukuiChat.RemoveRightChat)
+				
+				Movers:RegisterFrame(T.Panels.DataTextRight)
+			end
+		else
+			local Anchor1, Anchor2, X, Y, Width, Height = unpack(Settings)
+
+			Frame:SetUserPlaced(true)
+			Frame:ClearAllPoints()
+			Frame:SetPoint(Anchor1, UIParent, Anchor2, X, Y)
+			Frame:SetSize(Width, Height)
+
+			if (ID == 4 and Anchor1 == "BOTTOMRIGHT" and math.floor(X) == -34 and math.floor(Y) == 50) then
+				Frame:SetJustifyH("RIGHT")
+			end
+		end
 	end
 end
 
 function TukuiChat:Install()
 	-- Create our custom chatframes
-	
-	if ChatFrame3 and ChatFrame3Tab:GetText() == GENERAL and ChatFrame4 and ChatFrame4Tab:GetText() == self.RightChatName then
+	if (ChatFrame3 and ChatFrame3:IsShown() and ChatFrame3Tab:GetText() == GENERAL and ChatFrame4 and ChatFrame4:IsShown() and ChatFrame4Tab:GetText() == self.RightChatName) then
 		-- Do nothing, chat already set
 	else
 		ResetChatWindows()

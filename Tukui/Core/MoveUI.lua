@@ -35,6 +35,10 @@ function Movers:RestoreDefaults(button)
 		local Anchor1, ParentName, Anchor2, X, Y = unpack(Data)
 		local Frame = _G[FrameName]
 		local Parent = _G[ParentName]
+		
+		if not Parent then
+			Parent = UIParent
+		end
 
 		Frame:ClearAllPoints()
 		Frame:SetPoint(Anchor1, Parent, Anchor2, X, Y)
@@ -56,6 +60,8 @@ function Movers:RegisterFrame(frame)
 end
 
 function Movers:OnDragStart()
+	GameTooltip_Hide()
+	
 	self:StartMoving()
 end
 
@@ -75,6 +81,20 @@ function Movers:OnDragStop()
 	end
 
 	Data[FrameName] = {Anchor1, Parent:GetName(), Anchor2, X, Y}
+	
+	Movers:OnEnter()
+end
+
+function Movers:OnEnter()
+	GameTooltip:SetOwner(self)
+	GameTooltip:SetAnchorType("ANCHOR_CURSOR")
+	GameTooltip:AddLine("Hold left click to drag") -- LOCALIZE ME PLZ
+	GameTooltip:AddLine("Right click to reset default") -- LOCALIZE ME PLZ
+	GameTooltip:Show()
+end
+
+function Movers:OnLeave()
+	GameTooltip_Hide()
 end
 
 function Movers:CreateDragInfo()
@@ -91,8 +111,11 @@ function Movers:CreateDragInfo()
 	self.DragInfo:SetFrameStrata("HIGH")
 	self.DragInfo:SetMovable(true)
 	self.DragInfo:RegisterForDrag("LeftButton")
+	self.DragInfo:SetClampedToScreen(true)
 	self.DragInfo:Hide()
 	self.DragInfo:SetScript("OnMouseUp", Movers.RestoreDefaults)
+	self.DragInfo:SetScript("OnEnter", Movers.OnEnter)
+	self.DragInfo:SetScript("OnLeave", Movers.OnLeave)
 
 	self.DragInfo.Parent = self.DragInfo:GetParent()
 end
@@ -176,10 +199,6 @@ end
 
 Movers:SetScript("OnEvent", function(self, event)
 	if (event == "PLAYER_ENTERING_WORLD") then
-		if not TukuiData[GetRealmName()][UnitName("Player")].Move then
-			TukuiData[GetRealmName()][UnitName("Player")].Move = {}
-		end
-
 		local Data = TukuiData[GetRealmName()][UnitName("Player")].Move
 
 		for Frame, Position in pairs(Data) do

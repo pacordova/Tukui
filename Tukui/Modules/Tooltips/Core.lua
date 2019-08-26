@@ -3,6 +3,7 @@ local T, C, L = select(2, ...):unpack()
 local _G = _G
 local unpack = unpack
 local RaidColors = RAID_CLASS_COLORS
+local LibClassicMobHealth = LibStub("LibClassicMobHealth-1.0")
 local Tooltip = CreateFrame("Frame")
 local gsub, find, format = string.gsub, string.find, string.format
 local HealthBar = GameTooltipStatusBar
@@ -22,20 +23,12 @@ Tooltip.Tooltips = {
 	ItemRefTooltip,
 	ItemRefShoppingTooltip1,
 	ItemRefShoppingTooltip2,
-	ItemRefShoppingTooltip3,
 	AutoCompleteBox,
 	FriendsTooltip,
 	ShoppingTooltip1,
 	ShoppingTooltip2,
-	ShoppingTooltip3,
 	WorldMapTooltip,
-	WorldMapCompareTooltip1,
-	WorldMapCompareTooltip2,
-	WorldMapCompareTooltip3,
-	ReputationParagonTooltip,
-	StoryTooltip,
 	EmbeddedItemTooltip,
-	GarrisonFollowerTooltip,
 }
 
 local Classification = {
@@ -204,12 +197,6 @@ function Tooltip:OnTooltipSetUnit()
 		GameTooltip:AddLine(UnitName(Unit .. "target"), R, G, B)
 	end
 
-	if (C["Tooltips"].UnitHealthText and UnitHealth(Unit) and UnitHealthMax(Unit)) then
-		local Health, MaxHealth = UnitHealth(Unit), UnitHealthMax(Unit)
-		
-		HealthBar.Text:SetText(Unit == "player" and Short(UnitHealth(Unit)) .. " / " .. Short(UnitHealthMax(Unit)) or Health.."%")
-	end
-
 	self.fadeOut = nil
 end
 
@@ -298,26 +285,27 @@ function Tooltip:OnValueChanged()
 	end
 
 	local unit = select(2, self:GetParent():GetUnit())
-	if(not unit) then
+	
+	if (not unit) then
 		local GMF = GetMouseFocus()
 
 		if (GMF and GMF.GetAttribute and GMF:GetAttribute("unit")) then
 			unit = GMF:GetAttribute("unit")
 		end
 	end
-
-	local _, Max = HealthBar:GetMinMaxValues()
-	local Value = HealthBar:GetValue()
-	if (Max == 1) then
-		self.Text:Hide()
-	else
-		self.Text:Show()
+	
+	if not unit then
+		return
 	end
-
-	if (Value == 0 or (unit and UnitIsDeadOrGhost(unit))) then
+	
+	local LibCurrentHP, LibMaxHP, IsFound = LibClassicMobHealth:GetUnitHealth(unit)
+	local Health, MaxHealth = UnitHealth(unit), UnitHealthMax(unit)
+	local Value = (IsFound and LibCurrentHP .. " / " .. LibMaxHP) or (floor(Health / MaxHealth * 100) .. "%")
+	
+	if (UnitIsDeadOrGhost(unit)) then
 		self.Text:SetText(DEAD)
 	else
-		self.Text:SetText(Short(Value) .. " / " .. Short(Max))
+		self.Text:SetText(Value)
 	end
 end
 
@@ -331,20 +319,17 @@ function Tooltip:Enable()
 	if (not C.Tooltips.Enable) then
 		return
 	end
-
-	GameTooltip_SetBackdropStyle = function() end -- hope it doesn't taint
+	
 	self:CreateAnchor()
 
 	hooksecurefunc("GameTooltip_SetDefaultAnchor", self.SetTooltipDefaultAnchor)
 
 	for _, Tooltip in pairs(Tooltip.Tooltips) do
-		if Tooltip == GameTooltip then
-			Tooltip:HookScript("OnTooltipSetUnit", self.OnTooltipSetUnit)
-			Tooltip:HookScript("OnTooltipSetItem", self.OnTooltipSetItem)
-		end
-
 		Tooltip:HookScript("OnShow", self.Skin)
 	end
+	
+	GameTooltip:HookScript("OnTooltipSetUnit", self.OnTooltipSetUnit)
+	GameTooltip:HookScript("OnTooltipSetItem", self.OnTooltipSetItem)
 
 	ItemRefCloseButton:SkinCloseButton()
 
@@ -369,6 +354,8 @@ function Tooltip:Enable()
 
 		self:SetScript("OnEvent", Tooltip.HideInCombat)
 	end
+	
+	GameTooltip_SetBackdropStyle = function() end -- hope it doesn't taint
 end
 
 T["Tooltips"] = Tooltip

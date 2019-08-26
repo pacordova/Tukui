@@ -1840,7 +1840,7 @@ GUI.Toggle = function(self)
 			for i = 2, 5 do
 				local Toggle = Panels["ActionBar" .. i .. "ToggleButton"]
 
-				Toggle:SetAlpha(0)
+				Toggle:Hide()
 			end
 		end
 	else
@@ -1852,7 +1852,7 @@ GUI.Toggle = function(self)
 			for i = 2, 5 do
 				local Toggle = Panels["ActionBar" .. i .. "ToggleButton"]
 
-				Toggle:SetAlpha(1)
+				Toggle:Show()
 			end
 		end
 	end
@@ -1900,6 +1900,7 @@ local General = function(self)
 	
 	Window:CreateSection("Scaling")
 	Window:CreateSlider("General", "UIScale", "Set UI scale", 0.64, 1, 0.01)
+	Window:CreateSlider("General", "MinimapScale", "Set minimap scale (%)", 50, 200, 1)
 	
 	Window:CreateSection("Border & Backdrop")
 	Window:CreateColorSelection("General", "BackdropColor", "Backdrop color")
@@ -2044,7 +2045,6 @@ local Party = function(self)
 	
 	Window:CreateSection("Styling")
 	Window:CreateSwitch("Party", "ShowPlayer", "Display self in party")
-	Window:CreateSwitch("Party", "ShowHealthText", "Display health text")
 	Window:CreateSlider("Party", "RangeAlpha", "Set out of range alpha", 0, 1, 0.1)
 	
 	Window:CreateSection("Font")
@@ -2061,7 +2061,6 @@ local Raid = function(self)
 	Window:CreateSwitch("Raid", "VerticalHealth", "Enable vertical health")
 	
 	Window:CreateSection("Styling")
-	Window:CreateSwitch("Raid", "ShowHealthText", "Display health text")
 	Window:CreateSlider("Raid", "RangeAlpha", "Set out of range alpha", 0, 1, 0.1)
 	Window:CreateSlider("Raid", "MaxUnitPerColumn", "Set max units per column", 1, 15, 1)
 	
