@@ -113,9 +113,9 @@ function TukuiActionBars:MovePetBar()
 	end
 
 	if RightBar:IsShown() then
-		PetBar:SetPoint("RIGHT", RightBar, "LEFT", -6, 0)
+		PetBar:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 144)
 	else
-		PetBar:SetPoint("RIGHT", UIParent, "RIGHT", -28, 8)
+		PetBar:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 144)
 	end
 end
 
@@ -170,7 +170,7 @@ function TukuiActionBars:AddPanels()
 
 	-- Pet Bar
 	local A6 = CreateFrame("Frame", "TukuiPetActionBar", UIParent, "SecureHandlerStateTemplate")
-	A6:SetPoint("RIGHT", A5, "LEFT", -6, 0)
+	A6:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 150)
 	A6:SetFrameStrata("LOW")
 	A6:SetFrameLevel(10)
 	A6.Backdrop = CreateFrame("Frame", nil, A6)
