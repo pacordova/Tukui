@@ -387,7 +387,7 @@ function Loot:Enable()
 
 	-- Locals
 	self.IconSize = 32
-	self.DefaultPosition = {"TOPLEFT", UIParent, "TOPLEFT", 50, -50}
+	self.DefaultPosition = {"TOPLEFT", UIParent, "TOPLEFT", 666, -666}
 
 	TukuiLootFrame = CreateFrame("Button", "TukuiLootFrame", UIParent)
 	TukuiLootFrame:SetClampedToScreen(true)
