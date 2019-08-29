@@ -8,7 +8,7 @@ C["General"] = {
 	["BackdropColor"] = {0.11, 0.11, 0.11},
 	["BorderColor"] = {0, 0, 0},
 	["UseGlobal"] = false,
-	["HideShadows"] = false,
+	["HideShadows"] = true,
 	["UIScale"] = T.PerfectScale,
 	["MinimapScale"] = 100,
 

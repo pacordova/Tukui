@@ -134,7 +134,7 @@ function TukuiActionBars:AddPanels()
 
 	-- Bar #2
 	local A2 = CreateFrame("Frame", "TukuiActionBar2", UIParent, "SecureHandlerStateTemplate")
-	A2:Point("BOTTOMRIGHT", A1, "BOTTOMLEFT", -6, 0)
+	A2:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 106)
 	A2:SetFrameStrata("LOW")
 	A2:SetFrameLevel(10)
 	A2.Backdrop = CreateFrame("Frame", nil, A2)
@@ -143,7 +143,7 @@ function TukuiActionBars:AddPanels()
 
 	-- Bar #3
 	local A3 = CreateFrame("Frame", "TukuiActionBar3", UIParent, "SecureHandlerStateTemplate")
-	A3:Point("BOTTOMLEFT", A1, "BOTTOMRIGHT", 6, 0)
+	A3:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 74)
 	A3:SetFrameStrata("LOW")
 	A3:SetFrameLevel(10)
 	A3.Backdrop = CreateFrame("Frame", nil, A3)
@@ -152,7 +152,7 @@ function TukuiActionBars:AddPanels()
 
 	-- Bar #4
 	local A4 = CreateFrame("Frame", "TukuiActionBar4", UIParent, "SecureHandlerStateTemplate")
-	A4:Point("BOTTOM", A1, "BOTTOM", 0, 0)
+	A4:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 12)
 	A4:SetFrameStrata("LOW")
 	A4:SetFrameLevel(10)
 	A4.Backdrop = CreateFrame("Frame", nil, A4)
@@ -197,8 +197,13 @@ function TukuiActionBars:AddPanels()
 		A6.Backdrop:SetTemplate()
 		A7.Backdrop:SetTemplate()
 
-		A1.Backdrop:SetFrameLevel(A4:GetFrameLevel())
+		A1.Backdrop:SetFrameLevel(A2:GetFrameLevel())
 		A1.Backdrop.BorderTop:SetColorTexture(0, 0, 0, 0)
+		A4.Backdrop.BorderBottom:SetColorTexture(0, 0, 0, 0)
+		A4.Backdrop.BorderTop:SetColorTexture(0, 0, 0, 0)
+		A3.Backdrop.BorderTop:SetColorTexture(0, 0, 0, 0)
+		A3.Backdrop.BorderBottom:SetColorTexture(0, 0, 0, 0)
+		A2.Backdrop.BorderBottom:SetColorTexture(0, 0, 0, 0)
 
 		if not C.General.HideShadows then
 			A1.Backdrop:CreateShadow()
@@ -208,8 +213,6 @@ function TukuiActionBars:AddPanels()
 			A5.Backdrop:CreateShadow()
 			A6.Backdrop:CreateShadow()
 			A7.Backdrop:CreateShadow()
-
-			A1.Backdrop.Shadow:Hide()
 
 			A4:SetScript("OnShow", function() A1.Backdrop.Shadow:Hide() end)
 			A4:SetScript("OnHide", function() A1.Backdrop.Shadow:Show() end)

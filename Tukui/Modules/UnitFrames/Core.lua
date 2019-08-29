@@ -575,14 +575,11 @@ function TukuiUnitFrames:CreateAnchor()
 
 	local Anchor = CreateFrame("Frame", "TukuiActionBarAnchor", UIParent)
 
-	if T.Panels.ActionBar2 and T.Panels.ActionBar3 then
-		Anchor:SetPoint("TOPLEFT", T.Panels.ActionBar2)
-		Anchor:SetPoint("BottomRight", T.Panels.ActionBar3)
-	else
-		Anchor:SetHeight(1)
-		Anchor:SetWidth(800)
-		Anchor:SetPoint("BOTTOM", 0, 106)
-	end
+
+	Anchor:SetHeight(1)
+	Anchor:SetWidth(800)
+	Anchor:SetPoint("BOTTOM", 0, 256)
+
 
 	TukuiUnitFrames.Anchor = Anchor
 end
