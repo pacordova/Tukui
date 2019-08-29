@@ -216,6 +216,11 @@ function TukuiActionBars:AddPanels()
 
 			A4:SetScript("OnShow", function() A1.Backdrop.Shadow:Hide() end)
 			A4:SetScript("OnHide", function() A1.Backdrop.Shadow:Show() end)
+			
+			A1.Backdrop.Shadow:Show()
+			A2.Backdrop.Shadow:Show()
+			A3.Backdrop.Shadow:Show()
+			A4.Backdrop.Shadow:Show()
 		end
 	end
 

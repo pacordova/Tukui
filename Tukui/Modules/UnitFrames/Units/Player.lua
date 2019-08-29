@@ -219,7 +219,7 @@ function TukuiUnitFrames:Player()
 			CastBar:ClearAllPoints()
 			CastBar:SetWidth(200)
 			CastBar:SetHeight(23)
-			CastBar:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 220)
+			CastBar:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 350)
 			CastBar:CreateShadow()
 
 			if (C.UnitFrames.CastBarIcon) then

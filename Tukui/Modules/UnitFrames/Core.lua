@@ -578,7 +578,7 @@ function TukuiUnitFrames:CreateAnchor()
 
 	Anchor:SetHeight(1)
 	Anchor:SetWidth(800)
-	Anchor:SetPoint("BOTTOM", 0, 256)
+	Anchor:SetPoint("BOTTOM", 0, 200)
 
 
 	TukuiUnitFrames.Anchor = Anchor
