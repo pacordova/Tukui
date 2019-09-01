@@ -115,7 +115,7 @@ local function BuildBNTable(total)
 		local presenceID, presenceName, battleTag, isBattleTagPresence, toonName, toonID, client, isOnline, lastOnline, isAFK, isDND, messageText, noteText, isRIDFriend, messageTime, canSoR = BNGetFriendInfo(i)
 
 		if (toonID or presenceID) then
-			local hasFocus, _, _, realmName, realmID, faction, race, class, guild, zoneName, level, gameText = BNGetGameAccountInfo(toonID or presenceID)
+			local hasFocus, _, _, realmName, realmID, faction, race, class, guild, zoneName, level, gameText, broadcastText, broadcastTime, canSoR, toonID, bnetIDAccount, isGameAFK, isGameBusy, guid, wowProjectID, mobile = BNGetGameAccountInfo(toonID or presenceID)
 
 			for k,v in pairs(LOCALIZED_CLASS_NAMES_MALE) do
 				if class == v then
@@ -123,7 +123,7 @@ local function BuildBNTable(total)
 				end
 			end
 
-			BNTable[i] = { presenceID, presenceName, battleTag, toonName, toonID, client, isOnline, isAFK, isDND, noteText, realmName, faction, race, class, zoneName, level }
+			BNTable[i] = { presenceID, presenceName, battleTag, toonName, toonID, client, isOnline, isAFK, isDND, noteText, realmName, faction, race, class, zoneName, level, isBattleTagPresence, wowProjectID}
 
 			if isOnline then
 				BNTotalOnline = BNTotalOnline + 1
@@ -140,7 +140,7 @@ local function UpdateBNTable(total)
 		local presenceID, presenceName, battleTag, isBattleTagPresence, toonName, toonID, client, isOnline, lastOnline, isAFK, isDND, messageText, noteText, isRIDFriend, messageTime, canSoR = BNGetFriendInfo(i)
 
 		if (toonID or presenceID) then
-			local hasFocus, _, _, realmName, realmID, faction, race, class, guild, zoneName, level, gameText = BNGetGameAccountInfo(toonID or presenceID)
+			local hasFocus, _, _, realmName, realmID, faction, race, class, guild, zoneName, level, gameText, broadcastText, broadcastTime, canSoR, toonID, bnetIDAccount, isGameAFK, isGameBusy, guid, wowProjectID, mobile = BNGetGameAccountInfo(toonID or presenceID)
 
 			for k,v in pairs(LOCALIZED_CLASS_NAMES_MALE) do
 				if class == v then
@@ -177,6 +177,7 @@ local function UpdateBNTable(total)
 				BNTable[index][15] = zoneName
 				BNTable[index][16] = level
 				BNTable[index][17] = isBattleTagPresence
+				BNTable[index][18] = wowProjectID
 
 				BNTotalOnline = BNTotalOnline + 1
 			end
@@ -211,7 +212,7 @@ local OnMouseUp = function(self, btn)
 				menuCountWhispers = menuCountWhispers + 1
 				menuList[3].menuList[menuCountWhispers] = {text = RemoveTagNumber(BNTable[i][3]), arg1 = realID, arg2 = true, notCheckable=true, func = whisperClick}
 
-				if BNTable[i][6] == wowString and UnitFactionGroup("player") == BNTable[i][12] then
+				if BNTable[i][6] == wowString and UnitFactionGroup("player") == BNTable[i][12] and BNTable[i][11] == T.MyRealm then
 					classc, levelc = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[BNTable[i][14]], GetQuestDifficultyColor(BNTable[i][16])
 
 					if classc == nil then
@@ -272,92 +273,97 @@ local OnEnter = function(self)
 				local BNName = RemoveTagNumber(BNTable[i][3])
 
 				if BNTable[i][7] then
-					if count <= DisplayLimit then
-						if BNTable[i][6] == wowString then
-							local isBattleTag = BNTable[i][17]
+					if C.DataTexts.HideFriendsNotPlaying and (BNTable[i][6] == "BSAp" or BNTable[i][6] == "App") then
+						-- ignore them on tooltip, not playing any game.
+					else
+						if (count <= DisplayLimit) then
+							if BNTable[i][6] == wowString then
+								local isBattleTag = BNTable[i][17]
+								local ProjectID = (BNTable[i][18] == 1 and "World of Warcraft") or (BNTable[i][18] == 2 and "World of Warcraft Classic") or UNKNOWN
 
-							if (BNTable[i][8] == true) then
-								status = 1
-							elseif (BNTable[i][9] == true) then
-								status = 2
-							else
-								status = 3
-							end
-
-							classc = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[BNTable[i][14]]
-							levelc = GetQuestDifficultyColor(BNTable[i][16])
-
-							if not classc then
-								classc = {r=1, g=1, b=1}
-							end
-
-							if UnitInParty(BNTable[i][4]) or UnitInRaid(BNTable[i][4]) then
-								grouped = 1
-							else
-								grouped = 2
-							end
-
-							GameTooltip:AddDoubleLine(format(clientLevelNameString, BNName,levelc.r*255,levelc.g*255,levelc.b*255,BNTable[i][16],classc.r*255,classc.g*255,classc.b*255,BNTable[i][4],groupedTable[grouped], 255, 0, 0, statusTable[status]), "World of Warcraft")
-
-							if IsShiftKeyDown() then
-								if GetRealZoneText() == BNTable[i][15] then
-									zonec = activezone
+								if (BNTable[i][8] == true) then
+									status = 1
+								elseif (BNTable[i][9] == true) then
+									status = 2
 								else
-									zonec = inactivezone
+									status = 3
 								end
 
-								if GetRealmName() == BNTable[i][11] then
-									realmc = activezone
-								else
-									realmc = inactivezone
+								classc = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[BNTable[i][14]]
+								levelc = GetQuestDifficultyColor(BNTable[i][16])
+
+								if not classc then
+									classc = {r=1, g=1, b=1}
 								end
 
-								GameTooltip:AddDoubleLine("  "..BNTable[i][15], BNTable[i][11], zonec.r, zonec.g, zonec.b, realmc.r, realmc.g, realmc.b)
+								if UnitInParty(BNTable[i][4]) or UnitInRaid(BNTable[i][4]) then
+									grouped = 1
+								else
+									grouped = 2
+								end
+
+								GameTooltip:AddDoubleLine(format(clientLevelNameString, BNName,levelc.r*255,levelc.g*255,levelc.b*255,BNTable[i][16],classc.r*255,classc.g*255,classc.b*255,BNTable[i][4],groupedTable[grouped], 255, 0, 0, statusTable[status]), ProjectID)
+
+								if IsShiftKeyDown() and CanCooperateWithGameAccount(BNTable[i][5]) then
+									if GetRealZoneText() == BNTable[i][15] then
+										zonec = activezone
+									else
+										zonec = inactivezone
+									end
+
+									if GetRealmName() == BNTable[i][11] then
+										realmc = activezone
+									else
+										realmc = inactivezone
+									end
+
+									GameTooltip:AddDoubleLine("  "..BNTable[i][15], BNTable[i][11], zonec.r, zonec.g, zonec.b, realmc.r, realmc.g, realmc.b)
+								end
 							end
-						end
 
-						if BNTable[i][6] == "BSAp" or BNTable[i][6] == "App" then
-							GameTooltip:AddDoubleLine("|cffeeeeee"..BNName.."|r", "Battle.net")
-						end
+							if BNTable[i][6] == "BSAp" or BNTable[i][6] == "App" then
+								GameTooltip:AddDoubleLine("|cffeeeeee"..BNName.."|r", "Battle.net")
+							end
 
-						if BNTable[i][6] == "D3" then
-							GameTooltip:AddDoubleLine("|cffeeeeee"..BNName.."|r", "Diablo 3")
-						end
+							if BNTable[i][6] == "D3" then
+								GameTooltip:AddDoubleLine("|cffeeeeee"..BNName.."|r", "Diablo 3")
+							end
 
-						if BNTable[i][6] == "Hero" then
-							GameTooltip:AddDoubleLine("|cffeeeeee"..BNName.."|r", "Heroes of the Storm")
-						end
+							if BNTable[i][6] == "Hero" then
+								GameTooltip:AddDoubleLine("|cffeeeeee"..BNName.."|r", "Heroes of the Storm")
+							end
 
-						if BNTable[i][6] == "S1" then
-							GameTooltip:AddDoubleLine("|cffeeeeee"..BNName.."|r", "StarCraft: Remastered")
-						end
+							if BNTable[i][6] == "S1" then
+								GameTooltip:AddDoubleLine("|cffeeeeee"..BNName.."|r", "StarCraft: Remastered")
+							end
 
-						if BNTable[i][6] == "S2" then
-							GameTooltip:AddDoubleLine("|cffeeeeee"..BNName.."|r", "StarCraft 2")
-						end
+							if BNTable[i][6] == "S2" then
+								GameTooltip:AddDoubleLine("|cffeeeeee"..BNName.."|r", "StarCraft 2")
+							end
 
-						if BNTable[i][6] == "WTCG" then
-							GameTooltip:AddDoubleLine("|cffeeeeee"..BNName.."|r", "Hearthstone")
-						end
+							if BNTable[i][6] == "WTCG" then
+								GameTooltip:AddDoubleLine("|cffeeeeee"..BNName.."|r", "Hearthstone")
+							end
 
-						if BNTable[i][6] == "Pro" then
-							GameTooltip:AddDoubleLine("|cffeeeeee"..BNName.."|r", "Overwatch")
-						end
+							if BNTable[i][6] == "Pro" then
+								GameTooltip:AddDoubleLine("|cffeeeeee"..BNName.."|r", "Overwatch")
+							end
 
-						if BNTable[i][6] == "DST2" then
-							GameTooltip:AddDoubleLine("|cffeeeeee"..BNName.."|r", "Destiny 2")
-						end
+							if BNTable[i][6] == "DST2" then
+								GameTooltip:AddDoubleLine("|cffeeeeee"..BNName.."|r", "Destiny 2")
+							end
 
-						if BNTable[i][6] == "VIPR" then
-							GameTooltip:AddDoubleLine("|cffeeeeee"..BNName.."|r", "Call of Duty: Black Ops 4")
-						end
+							if BNTable[i][6] == "VIPR" then
+								GameTooltip:AddDoubleLine("|cffeeeeee"..BNName.."|r", "Call of Duty: Black Ops 4")
+							end
 
-						count = count + 1
-					elseif count == DisplayLimit + 1 then
-						GameTooltip:AddLine(" ")
-						GameTooltip:AddDoubleLine(" ", "List is too big to display them all...")
-						
-						count = 5000
+							count = count + 1
+						elseif count == DisplayLimit + 1 then
+							GameTooltip:AddLine(" ")
+							GameTooltip:AddDoubleLine(" ", "List is too big to display them all...")
+
+							count = 5000
+						end
 					end
 				end
 			end

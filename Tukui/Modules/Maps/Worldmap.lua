@@ -2,6 +2,7 @@ local T, C, L = select(2, ...):unpack()
 
 local WorldMap = CreateFrame("Frame")
 local WorldMapFrame = WorldMapFrame
+local FadeMap = PlayerMovementFrameFader.AddDeferredFrame
 
 function WorldMap:OnUpdate(elapsed)
 	if not WorldMapFrame:IsShown() then
@@ -61,12 +62,12 @@ function WorldMap:CreateCoords()
 	self.Coords = CreateFrame("Frame", nil, WorldMapFrame)
 	self.Coords:SetFrameLevel(90)
 	self.Coords.PlayerText = self.Coords:CreateFontString(nil, "OVERLAY")
-	self.Coords.PlayerText:SetFontTemplate(C.Medias.Font, 12)
+	self.Coords.PlayerText:SetFontTemplate(C.Medias.Font, 16)
 	self.Coords.PlayerText:SetTextColor(1, 1, 1)
 	self.Coords.PlayerText:SetPoint("BOTTOMLEFT", Map, "BOTTOMLEFT", 5, 5)
 	self.Coords.PlayerText:SetText("")
 	self.Coords.CursorText = self.Coords:CreateFontString(nil, "OVERLAY")
-	self.Coords.CursorText:SetFontTemplate(C.Medias.Font, 12)
+	self.Coords.CursorText:SetFontTemplate(C.Medias.Font, 16)
 	self.Coords.CursorText:SetTextColor(1, 1, 1)
 	self.Coords.CursorText:SetPoint("BOTTOMRIGHT", Map, "BOTTOMRIGHT", -5, 5)
 	self.Coords.CursorText:SetText("")
@@ -107,11 +108,74 @@ function WorldMap:SkinMap()
 	CloseButton:SetFrameLevel(Map:GetFrameLevel() + 1)
 end
 
+function WorldMap:SizeMap()
+	local Scale = C.General.WorldMapScale / 100
+	
+	WorldMapFrame:SetScale(Scale)
+	
+	WorldMapFrame.ScrollContainer.GetCursorPosition = function(self)
+	   local X, Y = MapCanvasScrollControllerMixin.GetCursorPosition(self)
+	   local Scale = WorldMapFrame:GetScale()
+		
+	   return X / Scale, Y / Scale
+	end
+end
+
+function WorldMap:AddMoving()
+	WorldMap.MoveButton = CreateFrame("Frame", nil, WorldMapFrame)
+	WorldMap.MoveButton:SetSize(60, 23)
+	WorldMap.MoveButton:SetPoint("TOPLEFT", 24, -80)
+	WorldMap.MoveButton:SetTemplate()
+	WorldMap.MoveButton:CreateShadow()
+	WorldMap.MoveButton:SetFrameLevel(WorldMapFrameCloseButton:GetFrameLevel())
+	WorldMap.MoveButton:EnableMouse(true)
+	WorldMap.MoveButton:RegisterForDrag("LeftButton")
+	
+	WorldMap.MoveButton.Title = WorldMap.MoveButton:CreateFontString(nil, "OVERLAY")
+	WorldMap.MoveButton.Title:SetPoint("LEFT", 5, 0)
+	WorldMap.MoveButton.Title:SetFontTemplate(C.Medias.Font, 16)
+	WorldMap.MoveButton.Title:SetText("Drag me")
+	
+	WorldMapFrame:SetMovable(true)
+	WorldMapFrame:SetUserPlaced(true)
+	
+	WorldMapFrame.ClearAllPoints = function() end
+	WorldMapFrame.SetPoint = function() end
+	
+	WorldMap.MoveButton:SetScript("OnDragStart", function(self)
+		WorldMapFrame:StartMoving()
+	end)
+	
+	WorldMap.MoveButton:SetScript("OnDragStop", function(self)
+		WorldMapFrame:StopMovingOrSizing()
+	end)
+end
+
+function WorldMap:AddFading()
+	FadeMap(WorldMapFrame, .5)
+end
+
 function WorldMap:Enable()
+	if not C.Misc.WorldMapEnable then
+		return
+	end
+	
 	self.Interval = 0.1
 	self:CreateCoords()
 	self:HookScript("OnUpdate", WorldMap.OnUpdate)
 	self:SkinMap()
+	self:SizeMap()
+	self:AddMoving()
+	
+	if C.Misc.FadeWorldMapWhileMoving then
+		self:AddFading()
+	end
+	
+	UIPanelWindows["WorldMapFrame"] = nil
+	WorldMapFrame:SetAttribute("UIPanelLayout-area", nil)
+	WorldMapFrame:SetAttribute("UIPanelLayout-enabled", false)
+	
+	tinsert(UISpecialFrames, "WorldMapFrame")
 end
 
 T["Maps"].Worldmap = WorldMap

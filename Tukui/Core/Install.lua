@@ -16,11 +16,7 @@ T.Popups.Popup["TUKUI_RESET_SETTINGS"] = {
 
 -- Reset GUI settings
 function Install:ResetSettings()
-	if TukuiUseGlobal then
-		TukuiSettings = {}
-	else
-		TukuiSettingsPerChar = {}
-	end
+	TukuiSettingsPerCharacter[T.MyRealm][T.MyName] = {}
 	
 	if TukuiData[GetRealmName()][UnitName("Player")].Move then
 		TukuiData[GetRealmName()][UnitName("Player")].Move = {}
@@ -34,8 +30,6 @@ function Install:ResetData()
 	end
 
 	TukuiData[GetRealmName()][UnitName("Player")] = {}
-
-	TukuiUseGlobal = false
 	
 	FCF_ResetChatWindows()
 	
@@ -79,6 +73,8 @@ function Install:SetDefaults()
 	SetCVar("nameplateShowFriendlyMinions", 0)
 	SetCVar("cameraSmoothStyle", 0)
 	SetCVar("profanityFilter", 0)
+	SetCVar("chatBubbles", 0)
+	SetCVar("chatBubblesParty", 0)
 
 	local Chat = T["Chat"]
 	local ActionBars = T["ActionBars"]

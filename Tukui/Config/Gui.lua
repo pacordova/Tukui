@@ -80,10 +80,22 @@ local SetValue = function(group, option, value)
 	
 	local Settings
 	
-	if TukuiUseGlobal then
+	if (not TukuiSettingsPerCharacter) then
+		TukuiSettingsPerCharacter = {}
+	end
+	
+	if (not TukuiSettingsPerCharacter[T.MyRealm]) then
+		TukuiSettingsPerCharacter[T.MyRealm] = {}
+	end
+	
+	if (not TukuiSettingsPerCharacter[T.MyRealm][T.MyName]) then
+		TukuiSettingsPerCharacter[T.MyRealm][T.MyName] = {}
+	end
+	
+	if TukuiSettingsPerCharacter[T.MyRealm][T.MyName].General and TukuiSettingsPerCharacter[T.MyRealm][T.MyName].General.UseGlobal then
 		Settings = TukuiSettings
 	else
-		Settings = TukuiSettingsPerChar
+		Settings = TukuiSettingsPerCharacter[T.MyRealm][T.MyName]
 	end
 	
 	if (not Settings[group]) then
@@ -1631,11 +1643,56 @@ GUI.Enable = function(self)
 	self.Footer:SetBackdropColor(unpack(LightColor))
 	
 	local FooterButtonWidth = ((HeaderWidth / 4) - Spacing) + 1
+
+	-- Global button
+	local GlobalButtonString = "You are currently using per-character gui settings, push me to switch to global"
+				
+	if TukuiSettingsPerCharacter[T.MyRealm][T.MyName].General and TukuiSettingsPerCharacter[T.MyRealm][T.MyName].General.UseGlobal then
+		GlobalButtonString = "You are currently using global gui settings, push me to switch to per-character"		
+	end
+				
+	local Global = CreateFrame("Frame", nil, self.Footer)
+	Global:Size(self.Footer:GetWidth(), HeaderHeight)
+	Global:Point("LEFT", self.Footer, 0, 0)
+	Global:SetTemplate(nil, Texture)
+	Global:CreateShadow()
+	Global:SetBackdropColor(unpack(BrightColor))
+	Global:SetScript("OnMouseDown", ButtonOnMouseDown)
+	Global:SetScript("OnMouseUp", ButtonOnMouseUp)
+	Global:SetScript("OnEnter", ButtonOnEnter)
+	Global:SetScript("OnLeave", ButtonOnLeave)
+	Global:HookScript("OnMouseUp", function()
+		local Settings = TukuiSettingsPerCharacter[T.MyRealm][T.MyName]
+		
+		if Settings.General and Settings.General.UseGlobal then
+			TukuiSettingsPerCharacter[T.MyRealm][T.MyName].General.UseGlobal = false			
+		else
+			if not TukuiSettingsPerCharacter[T.MyRealm][T.MyName].General then
+				TukuiSettingsPerCharacter[T.MyRealm][T.MyName].General = {}
+			end
+							
+			TukuiSettingsPerCharacter[T.MyRealm][T.MyName].General.UseGlobal = true
+		end
+						
+		ReloadUI()
+	end)
 	
+	Global.Highlight = Global:CreateTexture(nil, "OVERLAY")
+	Global.Highlight:SetAllPoints()
+	Global.Highlight:SetTexture(Texture)
+	Global.Highlight:SetVertexColor(0.5, 0.5, 0.5)
+	Global.Highlight:SetAlpha(0)
+	
+	Global.Middle = Global:CreateFontString(nil, "OVERLAY")
+	Global.Middle:SetAllPoints()
+	StyleFont(Global.Middle, Font, 14)
+	Global.Middle:SetJustifyH("CENTER")
+	Global.Middle:SetText(GlobalButtonString)
+				
 	-- Apply button
 	local Apply = CreateFrame("Frame", nil, self.Footer)
 	Apply:Size(FooterButtonWidth + 3, HeaderHeight)
-	Apply:Point("LEFT", self.Footer, 0, 0)
+	Apply:Point("LEFT", self.Footer, 0, -25)
 	Apply:SetTemplate(nil, Texture)
 	Apply:CreateShadow()
 	Apply:SetBackdropColor(unpack(BrightColor))
@@ -1818,7 +1875,7 @@ GUI.Enable = function(self)
 	
 	GameMenuFrame:HookScript("OnShow", function()
 		if GUI:IsShown() then
-			GUI.FadeOut:Play()
+			GUI:Toggle()
 		end
 	end)
 	
@@ -1837,11 +1894,15 @@ GUI.Toggle = function(self)
 		self.FadeOut:Play()
 		
 		if IsBarEnabled then
+			local Pet = T.Panels["ActionBarPetToggleButton"]
+						
 			for i = 2, 5 do
 				local Toggle = Panels["ActionBar" .. i .. "ToggleButton"]
 
 				Toggle:Hide()
 			end
+						
+			Pet:Hide()
 		end
 	else
 		self:Show()
@@ -1849,11 +1910,15 @@ GUI.Toggle = function(self)
 		
 		-- Really annoying to receive each day the same question on discord about how to hide action bars, let's show them when GUI is displayed.
 		if IsBarEnabled then
+			local Pet = T.Panels["ActionBarPetToggleButton"]
+						
 			for i = 2, 5 do
 				local Toggle = Panels["ActionBar" .. i .. "ToggleButton"]
 
 				Toggle:Show()
 			end
+						
+			Pet:Show()
 		end
 	end
 end
@@ -1884,23 +1949,14 @@ T.GUI = GUI
 
 local General = function(self)
 	local Window = self:CreateWindow("General", true)
-	
-	Window:CreateSection("GUI Settings")
-	
-	local Switch = Window:CreateSwitch("General", "UseGlobal", "Store settings account-wide (clicking this will reload your ui)")
-	
-	Switch.Hook = function(value)
-		TukuiUseGlobal = value
-		
-		ReloadUI()
-	end
-	
+
 	Window:CreateSection("Theme")
 	Window:CreateDropdown("General", "Themes", "Set UI theme")
 	
 	Window:CreateSection("Scaling")
 	Window:CreateSlider("General", "UIScale", "Set UI scale", 0.64, 1, 0.01)
 	Window:CreateSlider("General", "MinimapScale", "Set minimap scale (%)", 50, 200, 1)
+	Window:CreateSlider("General", "WorldMapScale", "Set world map scale (%)", 40, 100, 1)
 	
 	Window:CreateSection("Border & Backdrop")
 	Window:CreateColorSelection("General", "BackdropColor", "Backdrop color")
@@ -1990,6 +2046,7 @@ local DataTexts = function(self)
 	Window:CreateSection("Enable")
 	Window:CreateSwitch("DataTexts", "Battleground", "Enable battleground datatext")
 	Window:CreateSwitch("DataTexts", "Hour24", "Switch time datatext to 24h mode")
+	Window:CreateSwitch("DataTexts", "HideFriendsNotPlaying", "Hide friends currently not playing any games")
 	
 	Window:CreateSection("Color")
 	Window:CreateColorSelection("DataTexts", "NameColor", "Name color")
@@ -2013,11 +2070,19 @@ end
 local Misc = function(self)
 	local Window = self:CreateWindow("Misc")
 	
-	Window:CreateSection("Enable")
+	Window:CreateSection("World Map")
+	Window:CreateSwitch("Misc", "WorldMapEnable", "Enable our custom world map")	
+	Window:CreateSwitch("Misc", "FadeWorldMapWhileMoving", "Fade world map while moving?")
+	Window:CreateSection("Experience")
 	Window:CreateSwitch("Misc", "ExperienceEnable", "Enable experience module")
+	Window:CreateSection("Reputation")		
 	Window:CreateSwitch("Misc", "ReputationEnable", "Enable reputation module")
+	Window:CreateSection("UI Error filter")
 	Window:CreateSwitch("Misc", "ErrorFilterEnable", "Enable error filter module")
+	Window:CreateSection("Screensaver")
 	Window:CreateSwitch("Misc", "AFKSaver", "Enable AFK screensaver")
+	Window:CreateSection("Inventory")
+	Window:CreateSwitch("Misc", "AutoSellJunk", "Sell junk automatically when visiting a vendor?")	
 end
 
 local NamePlates = function(self)
@@ -2025,6 +2090,7 @@ local NamePlates = function(self)
 	
 	Window:CreateSection("Enable")
 	Window:CreateSwitch("NamePlates", "Enable", "Enable nameplate module")
+	Window:CreateSwitch("NamePlates", "NameplateCastBar", "Enable nameplate castbar")
 	
 	Window:CreateSection("Styling")
 	Window:CreateSwitch("NamePlates", "OnlySelfDebuffs", "Display only our debuffs")
@@ -2078,7 +2144,6 @@ local Tooltips = function(self)
 	Window:CreateSwitch("Tooltips", "UnitHealthText", "Enable unit health text")
 	
 	Window:CreateSection("Styling")
-	Window:CreateSwitch("Tooltips", "HideOnUnitFrames", "Hide tooltip on unitframes")
 	Window:CreateSwitch("Tooltips", "HideInCombat", "Hide tooltip while in combat")
 	Window:CreateSwitch("Tooltips", "MouseOver", "Display tooltips on the cursor")
 	
@@ -2118,7 +2183,13 @@ local UnitFrames = function(self)
 	Window:CreateSection("Enable")
 	Window:CreateSwitch("UnitFrames", "Enable", "Enable unitframe module")
 	Window:CreateSwitch("UnitFrames", "Portrait", "Enable unit portraits")
-	Window:CreateSwitch("UnitFrames", "CastBar", "Enable castbar")
+	Window:CreateSwitch("UnitFrames", "CastBar", "Enable castbar")	
+	Window:CreateSwitch("UnitFrames", "EnergyTick", "Enable energy ticks")
+				
+	Window:CreateSection("Scrolling combat text")
+	Window:CreateSwitch("UnitFrames", "ScrollingCombatText", "Enable scrolling combat text")
+	Window:CreateSlider("UnitFrames", "ScrollingCombatTextFontSize", "Text size of scrolling", 10, 80, 1)
+	Window:CreateDropdown("UnitFrames", "ScrollingCombatTextFont", "Set scrolling combat font", "Font")
 	
 	Window:CreateSection("Auras")
 	Window:CreateSwitch("UnitFrames", "PlayerAuras", "Enable player auras")
@@ -2134,8 +2205,6 @@ local UnitFrames = function(self)
 	Window:CreateSwitch("UnitFrames", "Smooth", "Enable smooth health transitions")
 	Window:CreateSwitch("UnitFrames", "CombatLog", "Enable combat feedback text")
 	Window:CreateSwitch("UnitFrames", "TargetEnemyHostileColor", "Enemy health bar colored by hostile reaction color")
-	
-	Window:CreateSection("Font")
 	Window:CreateDropdown("UnitFrames", "Font", "Set unitframe font", "Font")
 end
 

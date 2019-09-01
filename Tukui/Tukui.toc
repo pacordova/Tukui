@@ -1,10 +1,10 @@
 ## Interface: 11302
 ## Author: Tukz
 ## X-Maintainer: Tukz & Azilroka & Hydra
-## Version: 1.02
+## Version: 1.13
 ## Title: |cffff8000Tukui|r
 ## Notes: UI of awesomeness!
-## SavedVariables: TukuiData, TukuiSettings, TukuiUseGlobal, TukuiGold
+## SavedVariables: TukuiData, TukuiSettings, TukuiGold, TukuiSettingsPerCharacter, LibClassicMobHealth10DB, LibClassicMobHealth10Opt
 ## SavedVariablesPerCharacter: TukuiSettingsPerChar
 ## OptionalDeps: Clique
 ## X-oUF: TukuiUnitFrameFramework

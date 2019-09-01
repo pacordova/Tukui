@@ -252,6 +252,10 @@ function TukuiChat:SaveChatFramePositionAndDimensions()
 end
 
 function TukuiChat:RemoveRightChat()
+	if not UIParent:IsShown() then
+		return
+	end
+	
 	local Panels = T.Panels
 	
 	Panels.RightChatBG:Hide()
@@ -259,7 +263,13 @@ function TukuiChat:RemoveRightChat()
 	if C.Misc.ExperienceEnable then
 		local XP = T.Miscellaneous.Experience.XPBar2
 		
-		XP:Hide()
+		XP:SetParent(T.Hider)
+	end
+
+	if C.Misc.ReputationEnable then
+		local Rep = T.Miscellaneous.Reputation.RepBar2
+
+		Rep:SetParent(T.Hider)
 	end
 
 	Panels.DataTextRight:Hide()
@@ -273,14 +283,6 @@ function TukuiChat:SetChatFramePosition()
 	local Frame = self
 	local ID = Frame:GetID()
 
-	if not Frame:IsMovable() then
-		if C.General.Themes.Value == "Tukui 18" and ID == 4 then
-			TukuiChat:RemoveRightChat()
-		end
-		
-		return
-	end
-	
 	local Settings = TukuiData[GetRealmName()][UnitName("Player")].Chat["Frame" .. ID]
 
 	if Settings then
@@ -297,21 +299,32 @@ function TukuiChat:SetChatFramePosition()
 				Frame:SetPoint("BOTTOMLEFT", Panels.DataTextLeft, "TOPLEFT", 0, 2)
 				
 				Movers:RegisterFrame(T.Panels.DataTextLeft)
-			elseif ID == 4 and (not Frame:IsShown() or Frame.isDocked) then
-				TukuiChat:RemoveRightChat()
-			elseif ID == 4 then
-				Frame:SetParent(Panels.DataTextRight)
-				Frame:SetUserPlaced(true)
-				Frame:ClearAllPoints()
-				Frame:SetSize(Width, Height + 7)
-				Frame:SetPoint("BOTTOMLEFT", Panels.DataTextRight, "TOPLEFT", 0, 2)
-				Frame:SetJustifyH("RIGHT")
-				
-				Frame:HookScript("OnHide", TukuiChat.RemoveRightChat)
-				
-				Movers:RegisterFrame(T.Panels.DataTextRight)
+			elseif (ID == 4) then
+				if Frame:IsShown() and not Frame.isDocked then
+					Frame:SetParent(Panels.DataTextRight)
+					Frame:SetUserPlaced(true)
+					Frame:ClearAllPoints()
+					Frame:SetSize(Width, Height + 7)
+					Frame:SetPoint("BOTTOMLEFT", Panels.DataTextRight, "TOPLEFT", 0, 2)
+					Frame:SetJustifyH("RIGHT")
+					
+					-- need to delay that
+					if not Frame.IsOnHideHooked then
+						T.Delay(2, function() Frame:HookScript("OnHide", TukuiChat.RemoveRightChat) end)
+						
+						Frame.IsOnHideHooked = true
+					end
+
+					Movers:RegisterFrame(T.Panels.DataTextRight)
+				else
+					TukuiChat:RemoveRightChat()
+				end
 			end
 		else
+			if not Frame:IsMovable() then
+				return
+			end
+
 			local Anchor1, Anchor2, X, Y, Width, Height = unpack(Settings)
 
 			Frame:SetUserPlaced(true)
@@ -328,19 +341,19 @@ end
 
 function TukuiChat:Install()
 	-- Create our custom chatframes
-	if (ChatFrame3 and ChatFrame3:IsShown() and ChatFrame3Tab:GetText() == GENERAL and ChatFrame4 and ChatFrame4:IsShown() and ChatFrame4Tab:GetText() == self.RightChatName) then
-		-- Do nothing, chat already set
-	else
-		ResetChatWindows()
-		FCF_SetLocked(ChatFrame1, 1)
-		FCF_DockFrame(ChatFrame2)
-		FCF_SetLocked(ChatFrame2, 1)
-		FCF_OpenNewWindow(GENERAL)
-		FCF_SetLocked(ChatFrame3, 1)
-		FCF_DockFrame(ChatFrame3)
-		FCF_OpenNewWindow(self.RightChatName)
-		FCF_UnDockFrame(ChatFrame4)
-	end
+	FCF_ResetChatWindows()
+	FCF_SetLocked(ChatFrame1, 1)
+	FCF_DockFrame(ChatFrame2)
+	FCF_SetLocked(ChatFrame2, 1)
+	FCF_OpenNewWindow(GENERAL)
+	FCF_SetLocked(ChatFrame3, 1)
+	FCF_DockFrame(ChatFrame3)
+	FCF_OpenNewWindow(self.RightChatName)
+	FCF_UnDockFrame(ChatFrame4)
+	FCF_SetChatWindowFontSize(nil, ChatFrame1, 12)
+	FCF_SetChatWindowFontSize(nil, ChatFrame2, 12)
+	FCF_SetChatWindowFontSize(nil, ChatFrame3, 12)
+	FCF_SetChatWindowFontSize(nil, ChatFrame4, 12)
 
 	-- Enable Classcolor
 	ToggleChatColorNamesByClassGroup(true, "SAY")
@@ -400,15 +413,23 @@ function TukuiChat:MoveChannels()
 	ChatFrame_AddMessageGroup(ChatFrame4, "SKILL")
 	ChatFrame_AddMessageGroup(ChatFrame4, "CURRENCY")
 	
+	ChatFrame_RemoveChannel(ChatFrame1, "General")
+	ChatFrame_RemoveChannel(ChatFrame1, "Trade")
+	ChatFrame_RemoveChannel(ChatFrame1, "LocalDefense")
+
+	ChatFrame_AddChannel(ChatFrame3, "General")
+	ChatFrame_AddChannel(ChatFrame3, "Trade")
+	ChatFrame_AddChannel(ChatFrame3, "LocalDefense")
+	
 	T.Delay(5, function()
+		ChatFrame_RemoveChannel(ChatFrame1, "General")
+		ChatFrame_RemoveChannel(ChatFrame1, "Trade")
+		ChatFrame_RemoveChannel(ChatFrame1, "LocalDefense")
+
 		ChatFrame_AddChannel(ChatFrame3, "General")
 		ChatFrame_AddChannel(ChatFrame3, "Trade")
 		ChatFrame_AddChannel(ChatFrame3, "LocalDefense")
 	end)
-
-	ChatFrame_RemoveChannel(ChatFrame1, "General")
-	ChatFrame_RemoveChannel(ChatFrame1, "Trade")
-	ChatFrame_RemoveChannel(ChatFrame1, "LocalDefense")
 end
 
 function TukuiChat:OnMouseWheel(delta)
@@ -462,8 +483,10 @@ function TukuiChat:Setup()
 		if i == 2 then
 			CombatLogQuickButtonFrame_Custom:StripTextures()
 		else
-			Frame.DefaultAddMessage = Frame.AddMessage
-			Frame.AddMessage = TukuiChat.AddMessage
+			if C.Chat.ShortChannelName then
+				Frame.DefaultAddMessage = Frame.AddMessage
+				Frame.AddMessage = TukuiChat.AddMessage
+			end
 		end
 	end
 

@@ -246,8 +246,8 @@ function TukuiUnitFrames:Player()
 	if (C.UnitFrames.CombatLog) then
 		local CombatFeedbackText = Health:CreateFontString(nil, "OVERLAY", 7)
 		CombatFeedbackText:SetFontObject(Font)
-		CombatFeedbackText:SetFont(CombatFeedbackText:GetFont(), 16, "THINOUTLINE")
-		CombatFeedbackText:SetPoint("CENTER", 0, 1)
+		CombatFeedbackText:SetFont(CombatFeedbackText:GetFont(), 14, "THINOUTLINE")
+		CombatFeedbackText:SetPoint("CENTER", 0, -1)
 		CombatFeedbackText.colors = {
 			DAMAGE = {0.69, 0.31, 0.31},
 			CRUSHING = {0.69, 0.31, 0.31},
@@ -304,6 +304,16 @@ function TukuiUnitFrames:Player()
 
 		self.ComboPointsBar = ComboPoints
 	end
+	
+	if (C.UnitFrames.EnergyTick) and (Class == "ROGUE" or Class == "DRUID") then
+		Power.PowerTick = CreateFrame("Frame", nil, Power)
+		Power.PowerTick.Texture = Power.PowerTick:CreateTexture(nil, 'OVERLAY', 8)
+		Power.PowerTick.Texture:SetTexture([[Interface\CastingBar\UI-CastingBar-Spark]])
+		Power.PowerTick.Texture:Size(Power:GetHeight() + 4)
+		Power.PowerTick.Texture:SetPoint("CENTER", Power, 0, 0)
+		Power.PowerTick.Texture:SetBlendMode("ADD")
+		Power.PowerTick:SetScript("OnUpdate", TukuiUnitFrames.OnUpdateEnergyTick)
+	end
 
 	local RaidIcon = Health:CreateTexture(nil, "OVERLAY", 7)
 	RaidIcon:SetSize(16, 16)
@@ -314,6 +324,28 @@ function TukuiUnitFrames:Player()
 	RestingIndicator:SetTexture([[Interface\AddOns\Tukui\Medias\Textures\Others\Resting]])
 	RestingIndicator:SetSize(20, 20)
 	RestingIndicator:SetPoint("CENTER", Panel, "CENTER", 0, 0)
+	
+	if C.UnitFrames.ScrollingCombatText then
+		local DamageFont = T.GetFont(C.UnitFrames.ScrollingCombatTextFont)
+		local DamageFontPath, DamageFontSize, DamageFontFlag = _G[DamageFont]:GetFont()
+
+		local ScrollingCombatText = CreateFrame("Frame", "TukuiPlayerFrameScrollingCombatText", UIParent)
+		ScrollingCombatText:SetSize(32, 32)
+		ScrollingCombatText:SetPoint("CENTER", 0, -(T.ScreenHeight / 8))
+		ScrollingCombatText.scrollTime = 1.5
+		ScrollingCombatText.font = DamageFontPath
+		ScrollingCombatText.fontHeight = C.UnitFrames.ScrollingCombatTextFontSize
+		ScrollingCombatText.radius = 100
+		ScrollingCombatText.fontFlags = DamageFontFlag
+		
+		for i = 1, 6 do
+			ScrollingCombatText[i] = ScrollingCombatText:CreateFontString("TukuiPlayerFrameScrollingCombatTextFont" .. i, "OVERLAY")
+		end
+		
+		self.FloatingCombatFeedback = ScrollingCombatText
+
+		T.Movers:RegisterFrame(ScrollingCombatText)
+	end
 
 	self:HookScript("OnEnter", TukuiUnitFrames.MouseOnPlayer)
 	self:HookScript("OnLeave", TukuiUnitFrames.MouseOnPlayer)

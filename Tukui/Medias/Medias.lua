@@ -6,7 +6,7 @@ C["Medias"] = {
 	-- Fonts
 	["Font"] = [[Interface\AddOns\Tukui\Medias\Fonts\PtSansNarrow.ttf]],
 	["UnitFrameFont"] = [[Interface\AddOns\Tukui\Medias\Fonts\BigNoodleTitling.ttf]],
-	["DamageFont"] = [[Interface\AddOns\Tukui\Medias\Fonts\diediedie.ttf]],
+	["DamageFont"] = [[Interface\AddOns\Tukui\Medias\Fonts\DieDieDie.ttf]],
 	["PixelFont"] = [=[Interface\AddOns\Tukui\Medias\Fonts\Visitor.ttf]=],
 	["ActionBarFont"] = [[Interface\AddOns\Tukui\Medias\Fonts\Arial.ttf]],
 
@@ -17,6 +17,9 @@ C["Medias"] = {
 	["Copy"] = [[Interface\AddOns\Tukui\Medias\Textures\Others\Copy]],
 	["Blank"] = [[Interface\AddOns\Tukui\Medias\Textures\Others\Blank]],
 	["Logo"] = [[Interface\AddOns\Tukui\Medias\Textures\Others\Logo]],
+	["Sort"] = [[Interface\AddOns\Tukui\Medias\Textures\Others\Sort]],
+	["ArrowUp"] = [[Interface\AddOns\Tukui\Medias\Textures\Others\ArrowUp]],
+	["ArrowDown"] = [[Interface\AddOns\Tukui\Medias\Textures\Others\ArrowDown]],
 
 	-- colors
 	["BorderColor"] = C.General.BorderColor or { 0, 0, 0 },
@@ -31,4 +34,6 @@ if (Locale == "koKR" or Locale == "zhTW" or Locale == "zhCN") then
 	C["Medias"].Font = STANDARD_TEXT_FONT
 	C["Medias"].UnitFrameFont = UNIT_NAME_FONT
 	C["Medias"].DamageFont = DAMAGE_TEXT_FONT
+elseif (Locale ~= "enUS" and Locale ~= "frFR" and Locale ~= "enGB") then
+	C["Medias"].DamageFont = C["Medias"].Font
 end
