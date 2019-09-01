@@ -29,20 +29,33 @@ end
 function Loading:LoadCustomSettings()
 	local Settings
 	
-	if TukuiUseGlobal then
-		if (not TukuiSettings) then
-			TukuiSettings = {}
+	if (not TukuiSettingsPerCharacter) then
+		TukuiSettingsPerCharacter = {}
+	end
+	
+	if (not TukuiSettingsPerCharacter[T.MyRealm]) then
+		TukuiSettingsPerCharacter[T.MyRealm] = {}
+	end
+	
+	if (not TukuiSettingsPerCharacter[T.MyRealm][T.MyName]) then
+		if TukuiSettingsPerChar ~= nil then
+			-- old table for gui settings, TukuiSettingsPerChar is now deprecated and will be removed in a future build
+			TukuiSettingsPerCharacter[T.MyRealm][T.MyName] = TukuiSettingsPerChar
+		else
+			TukuiSettingsPerCharacter[T.MyRealm][T.MyName] = {}
 		end
-		
+	end
+	
+	if not TukuiSettings then
+		TukuiSettings = {}
+	end
+	
+	if TukuiSettingsPerCharacter[T.MyRealm][T.MyName].General and TukuiSettingsPerCharacter[T.MyRealm][T.MyName].General.UseGlobal == true then
 		Settings = TukuiSettings
 	else
-		if (not TukuiSettingsPerChar) then
-			TukuiSettingsPerChar = {}
-		end
-		
-		Settings = TukuiSettingsPerChar
+		Settings = TukuiSettingsPerCharacter[T.MyRealm][T.MyName]
 	end
-
+	
 	for group, options in pairs(Settings) do
 		if C[group] then
 			local Count = 0
@@ -67,7 +80,7 @@ function Loading:LoadCustomSettings()
 				end
 			end
 
-			-- Keeps TukuiConfig clean and small
+			-- Keeps settings clean and small
 			if (Count == 0) then
 				Settings[group] = nil
 			end
@@ -75,8 +88,6 @@ function Loading:LoadCustomSettings()
 			Settings[group] = nil
 		end
 	end
-	
-	C.General.UseGlobal = TukuiUseGlobal
 end
 
 function Loading:Enable()

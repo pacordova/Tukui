@@ -11,6 +11,7 @@ C["General"] = {
 	["HideShadows"] = false,
 	["UIScale"] = T.PerfectScale,
 	["MinimapScale"] = 100,
+	["WorldMapScale"] = 59,
 
 	["Themes"] = {
 		["Options"] = {
@@ -73,6 +74,7 @@ C["Cooldowns"] = {
 
 C["DataTexts"] = {
 	["Battleground"] = true,
+	["HideFriendsNotPlaying"] = true,
 	["NameColor"] = {1, 1, 1},
 	["ValueColor"] = {1, 1, 1},
 	["Hour24"] = false,
@@ -86,22 +88,26 @@ C["Loot"] = {
 }
 
 C["Misc"] = {
+	["WorldMapEnable"] = true,
 	["ExperienceEnable"] = true,
 	["ReputationEnable"] = true,
 	["ErrorFilterEnable"] = true,
+	["AutoSellJunk"] = true,
 	["AFKSaver"] = true,
+	["FadeWorldMapWhileMoving"] = false,
 }
 
 C["NamePlates"] = {
 	["Enable"] = true,
 	["Width"] = 129,
 	["Height"] = 12,
+	["NameplateCastBar"] = true,
 	["Font"] = "Tukui Outline",
 	["OnlySelfDebuffs"] = true,
 }
 
 C["Party"] = {
-	["Enable"] = true,
+	["Enable"] = false,
 	["ShowPlayer"] = true,
 	["RangeAlpha"] = 0.3,
 	["Font"] = "Tukui",
@@ -129,7 +135,6 @@ C["Raid"] = {
 
 C["Tooltips"] = {
 	["Enable"] = true,
-	["HideOnUnitFrames"] = false,
 	["HideInCombat"] = false,
 	["UnitHealthText"] = true,
 	["MouseOver"] = false,
@@ -153,6 +158,10 @@ C["Textures"] = {
 
 C["UnitFrames"] = {
 	["Enable"] = true,
+	["ScrollingCombatText"] = false,
+	["ScrollingCombatTextFontSize"] = 32,
+	["ScrollingCombatTextFont"] = "Tukui Damage",
+	["EnergyTick"] = true,
 	["Portrait"] = false,
 	["CastBar"] = true,
 	["ComboBar"] = true,
@@ -161,7 +170,7 @@ C["UnitFrames"] = {
 	["CastBarLatency"] = true,
 	["Smooth"] = true,
 	["TargetEnemyHostileColor"] = true,
-	["CombatLog"] = false,
+	["CombatLog"] = true,
 	["PlayerAuras"] = true,
 	["TargetAuras"] = true,
 	["OnlySelfDebuffs"] = false,

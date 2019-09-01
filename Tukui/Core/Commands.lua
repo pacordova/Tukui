@@ -24,7 +24,7 @@ EventTrace:SetScript("OnEvent", function(self, event)
 end)
 
 T.SlashHandler = function(cmd)
-	local arg1, arg2 = Split(cmd)
+	local arg1, arg2, arg3 = Split(cmd)
 
 	if (arg1 == "" or arg1 == "help") then
 		print(" ")
@@ -38,11 +38,17 @@ T.SlashHandler = function(cmd)
 		print(L.Help.Happiness)
 		print(L.Help.Install)
 		print(L.Help.Load)
+		print(L.Help.MobsHealth)
 		print(L.Help.Move)
 		print(L.Help.Profile)
 		print(L.Help.Status)
 		print(L.Help.Test)
 		print(" ")
+	elseif (arg1 == "mh") then
+		local SlashCommand = _G.SlashCmdList["LIBCLASSICMOBHEALTHONE"]
+		local Command = (arg3 and arg2.." "..arg3) or (arg2) or ""
+		
+		SlashCommand(Command)
 	elseif (arg1 == "chat") then
 		if (arg2 == "reset") then
 			local Chat = T.Chat
@@ -51,7 +57,6 @@ T.SlashHandler = function(cmd)
 				TukuiData[GetRealmName()][UnitName("Player")].ChatReset = true
 				
 				Chat:Install()
-				Chat:SetChatFramePosition()
 				
 				TukuiData[GetRealmName()][UnitName("Player")].Move.TukuiLeftDataTextBox = nil
 				TukuiData[GetRealmName()][UnitName("Player")].Move.TukuiRightDataTextBox = nil
@@ -194,17 +199,21 @@ T.SlashHandler = function(cmd)
 				Tukui.Profiles = {}
 				Tukui.Profiles.Data = {}
 				Tukui.Profiles.Options = {}
+				
+				local EmptyTable = {}
 
 				for Server, Table in pairs(TukuiData) do
 					if not Server then return end
 
 					for Character, Table in pairs(TukuiData[Server]) do
+						-- Data
 						tinsert(Tukui.Profiles.Data, TukuiData[Server][Character])
 						
-						if (not TukuiUseGlobal) and (TukuiSettingsPerChar) then
-							tinsert(Tukui.Profiles.Options, TukuiSettingsPerChar)
+						-- GUI options, it can be not found if you didn't log at least once since version 1.10 on that toon.
+						if TukuiSettingsPerCharacter and TukuiSettingsPerCharacter[Server] and TukuiSettingsPerCharacter[Server][Character] then
+							tinsert(Tukui.Profiles.Options, TukuiSettingsPerCharacter[Server][Character])
 						else
-							tinsert(Tukui.Profiles.Options, TukuiSettings)
+							tinsert(Tukui.Profiles.Options, EmptyTable)
 						end
 
 						print("Profile "..#Tukui.Profiles.Data..": ["..Server.."]-["..Character.."]")
@@ -233,15 +242,12 @@ T.Popups.Popup["TUKUI_IMPORT_PROFILE"] = {
 	Answer1 = ACCEPT,
 	Answer2 = CANCEL,
 	Function1 = function(self)
-		local CurrentServer = GetRealmName()
-		local CurrentCharacter = UnitName("player")
+		TukuiData[T.MyRealm][T.MyName] = Tukui.Profiles.Data[SelectedProfile]
 		
-		TukuiData[CurrentServer][CurrentCharacter] = Tukui.Profiles.Data[SelectedProfile]
-		
-		if (not TukuiUseGlobal) and (TukuiSettingsPerChar) then
-			TukuiSettingsPerChar = Tukui.Profiles.Options[SelectedProfile]
+		if TukuiSettingsPerCharacter[T.MyRealm][T.MyName].General and TukuiSettingsPerCharacter[T.MyRealm][T.MyName].General.UseGlobal then
+			-- Look like we use globals for gui, don't import gui settings, keep globals
 		else
-			TukuiSettings = Tukui.Profiles.Options[SelectedProfile]
+			TukuiSettingsPerCharacter[T.MyRealm][T.MyName] = Tukui.Profiles.Options[SelectedProfile]
 		end
 
 		ReloadUI()
