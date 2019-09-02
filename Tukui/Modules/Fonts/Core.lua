@@ -30,7 +30,7 @@ function TukuiFonts:ChangeWoWFonts()
 	CHAT_FONT_HEIGHTS = {12, 13, 14, 15, 16, 17, 18, 19, 20}
 
 	UNIT_NAME_FONT = NORMAL
-	DAMAGE_TEXT_FONT = NORMAL
+	DAMAGE_TEXT_FONT = COMBAT
 	STANDARD_TEXT_FONT = NORMAL
 
 	-- Base fonts
@@ -57,7 +57,7 @@ function TukuiFonts:ChangeWoWFonts()
 	SetFont(SystemFont_Tiny, NORMAL, 12)
 	SetFont(Tooltip_Med, NORMAL, 12)
 	SetFont(Tooltip_Small, NORMAL, 12)
-	--SetFont(CombatTextFont, COMBAT, 200, "OUTLINE")
+	SetFont(CombatTextFont, COMBAT, 200, "OUTLINE")
 	SetFont(SystemFont_Shadow_Huge1, NORMAL, 20, "THINOUTLINE")
 	SetFont(ZoneTextString, NORMAL, 32, "OUTLINE")
 	SetFont(SubZoneTextString, NORMAL, 25, "OUTLINE")

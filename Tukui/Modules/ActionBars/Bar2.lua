@@ -24,25 +24,16 @@ function TukuiActionBars:CreateBar2()
 		Button:SetAttribute("showgrid", 1)
 
 		if (i == 1) then
-			Button:SetPoint("BOTTOMRIGHT", ActionBar2, -Spacing, Spacing)
+			Button:SetPoint("TOPLEFT", ActionBar2, Spacing, -Spacing)
 
-			ActionBar2:SetWidth((Button:GetWidth() * 6) + (Spacing * 7))
+			ActionBar2:SetWidth((Button:GetWidth() * 12) + (Spacing * 13))
 			ActionBar2:SetHeight((Button:GetWidth() * 2) + (Spacing * 3))
-		elseif (i == 7) then
-			Button:SetPoint("TOPRIGHT", ActionBar2, -Spacing, -Spacing)
 		else
-			Button:SetPoint("RIGHT", PreviousButton, "LEFT", -Spacing, 0)
+			Button:SetPoint("LEFT", PreviousButton, "RIGHT", Spacing, 0)
 		end
 
 		ActionBar2["Button"..i] = Button
 	end
-
-	for i = 7, 12 do
-		local Button = _G["MultiBarBottomLeftButton"..i]
-		local Button1 = _G["MultiBarBottomLeftButton1"]
-
-		Button:SetFrameLevel(Button1:GetFrameLevel() - 2)
-	end
-
+	
 	Movers:RegisterFrame(ActionBar2)
 end

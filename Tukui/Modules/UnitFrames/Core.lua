@@ -604,14 +604,11 @@ function TukuiUnitFrames:CreateAnchor()
 
 	local Anchor = CreateFrame("Frame", "TukuiActionBarAnchor", UIParent)
 
-	if T.Panels.ActionBar2 and T.Panels.ActionBar3 then
-		Anchor:SetPoint("TOPLEFT", T.Panels.ActionBar2)
-		Anchor:SetPoint("BottomRight", T.Panels.ActionBar3)
-	else
-		Anchor:SetHeight(1)
-		Anchor:SetWidth(800)
-		Anchor:SetPoint("BOTTOM", 0, 106)
-	end
+
+	Anchor:SetHeight(1)
+	Anchor:SetWidth(800)
+	Anchor:SetPoint("BOTTOM", 0, 200)
+
 
 	TukuiUnitFrames.Anchor = Anchor
 end
@@ -658,7 +655,7 @@ function TukuiUnitFrames:CreateUnits()
 		if C.Raid.Enable then
 			local Raid = oUF:SpawnHeader(TukuiUnitFrames:GetRaidFramesAttributes())
 			Raid:SetParent(UIParent)
-			Raid:Point("TOPLEFT", UIParent, "TOPLEFT", 30, -30)
+			Raid:Point("TOPLEFT", UIParent, "TOPLEFT", 12, -200)
 
 			TukuiUnitFrames.Headers.Raid = Raid
 

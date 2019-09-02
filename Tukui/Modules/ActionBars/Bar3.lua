@@ -24,12 +24,10 @@ function TukuiActionBars:CreateBar3()
 		Button:SetAttribute("showgrid", 1)
 
 		if (i == 1) then
-			Button:SetPoint("BOTTOMLEFT", ActionBar3, Spacing, Spacing)
-
-			ActionBar3:SetWidth((Button:GetWidth() * 6) + (Spacing * 7))
-			ActionBar3:SetHeight((Button:GetWidth() * 2) + (Spacing * 3))
-		elseif (i == 7) then
 			Button:SetPoint("TOPLEFT", ActionBar3, Spacing, -Spacing)
+
+			ActionBar3:SetWidth((Button:GetWidth() * 12) + (Spacing * 13))
+			ActionBar3:SetHeight((Button:GetWidth() * 2) + (Spacing * 3))
 		else
 			Button:SetPoint("LEFT", PreviousButton, "RIGHT", Spacing, 0)
 		end

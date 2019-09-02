@@ -35,10 +35,10 @@ function TukuiActionBars:CreatePetBar()
 		if (i == 1) then
 			Button:SetPoint("TOPLEFT", Spacing, -Spacing)
 
-			Bar:SetWidth(Button:GetWidth() + (Spacing * 2))
-			Bar:SetHeight((Button:GetWidth() * 10) + (Spacing * 11))
+			Bar:SetHeight(Button:GetWidth() + (Spacing * 2))
+			Bar:SetWidth((Button:GetWidth() * 10) + (Spacing * 11))
 		else
-			Button:SetPoint("TOP", _G["PetActionButton"..(i - 1)], "BOTTOM", 0, -Spacing)
+			Button:SetPoint("LEFT", _G["PetActionButton"..(i - 1)], "RIGHT", Spacing, 0)
 		end
 
 		Bar:SetAttribute("addchild", Button)
