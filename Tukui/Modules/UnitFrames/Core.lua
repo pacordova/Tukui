@@ -655,7 +655,7 @@ function TukuiUnitFrames:CreateUnits()
 		if C.Raid.Enable then
 			local Raid = oUF:SpawnHeader(TukuiUnitFrames:GetRaidFramesAttributes())
 			Raid:SetParent(UIParent)
-			Raid:Point("TOPLEFT", UIParent, "TOPLEFT", 30, -30)
+			Raid:Point("TOPLEFT", UIParent, "TOPLEFT", 12, -200)
 
 			TukuiUnitFrames.Headers.Raid = Raid
 
