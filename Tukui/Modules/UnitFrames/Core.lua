@@ -39,7 +39,6 @@ TukuiUnitFrames.NameplatesVars = {
 	nameplateMaxAlpha = 1,
 	nameplateMinAlpha = 1,
 	nameplateSelectedAlpha = 1,
-	nameplateMaxDistance = 80,
 	nameplateMaxScale = 1,
 	nameplateMinScale = 1,
 	nameplateSelectedScale = 1,
@@ -150,10 +149,6 @@ function TukuiUnitFrames:Highlight()
 	end
 end
 
-function TukuiUnitFrames:NameplatesPostUpdate(event, ...)
-	-- need rewrite
-end
-
 function TukuiUnitFrames:UpdateShadow(height)
 	local Frame = self:GetParent()
 	local Shadow = Frame.Shadow
@@ -244,6 +239,24 @@ function TukuiUnitFrames:PreUpdateHealth(unit)
 	end
 end
 
+function TukuiUnitFrames:DisplayPlayerAndPetNames(event)
+	if event == "PLAYER_REGEN_DISABLED" then
+		self.Power.Value:SetAlpha(1)
+		self.Name:SetAlpha(0)
+		
+		if self.unit ~= "player" then
+			self.Health.Value:SetAlpha(1)
+		end
+	else
+		self.Power.Value:SetAlpha(0)
+		self.Name:SetAlpha(1)
+		
+		if self.unit ~= "player" then
+			self.Health.Value:SetAlpha(0)
+		end
+	end
+end
+
 function TukuiUnitFrames:PostUpdateHealth(unit, min, max)
 	if (not self.Value) then
 		return
@@ -254,11 +267,25 @@ function TukuiUnitFrames:PostUpdateHealth(unit, min, max)
 	elseif (UnitIsDeadOrGhost(unit)) then
 		self.Value:SetText("|cffD7BEA5"..DEAD.."|r")
 	else
-		local r, g, b = T.ColorGradient(min, max, 0.69, 0.31, 0.31, 0.65, 0.63, 0.35, 0.33, 0.59, 0.33)
+		local Parent = self:GetParent():GetName()
+		local Raid = string.match(Parent, "Raid")
 		local LibCurrentHP, LibMaxHP, IsFound = LibClassicMobHealth:GetUnitHealth(unit)
-		local HP = (unit == "player" and min) or (IsFound and LibCurrentHP)
-		
-		self.Value:SetFormattedText("|cffAF5050%s|r |cffD7BEA5-|r |cff%02x%02x%02x%d%%|r", (HP and TukuiUnitFrames.ShortValue(HP)) or "???", r * 255, g * 255, b * 255, floor(min / max * 100))
+		local HP = (IsFound and LibCurrentHP) or min
+		local MaxHP = (IsFound and LibMaxHP) or max
+
+		if Raid then
+			if (IsFound) and (LibCurrentHP ~= LibMaxHP) then
+				self.Value:SetFormattedText("|cffC33331-%s|r", MaxHP - HP)
+			else
+				self.Value:SetText("")
+			end
+		else
+			if (IsFound) then
+				self.Value:SetFormattedText("|cff4AAB5E%s / %s|r", HP, MaxHP)
+			else
+				self.Value:SetFormattedText("|cff4AAB5E%s%%|r", HP)
+			end
+		end
 	end
 end
 
@@ -268,23 +295,10 @@ function TukuiUnitFrames:PostUpdatePower(unit, current, min, max)
 	end
 	
 	local pType, pToken = UnitPowerType(unit)
-	local Color = T.Colors.power[pToken]
-	local Pr, Pg, Pb = 1, 1, 1
-	
-	if Color then
-		Pr, Pg, Pb = unpack(Color)
-	end
+	local Color = T.RGBToHex(unpack(T.Colors.power[pToken]))
 
-	local r, g, b = T.ColorGradient(current, max, 0.69, 0.31, 0.31, 0.65, 0.63, 0.35, 0.33, 0.59, 0.33)
-
-	if (unit == "player") then
-		if (not InCombatLockdown()) then
-			local Color = T.RGBToHex(unpack(T.Colors.class[T.MyClass]))
-
-			self.Value:SetText(Color..T.MyName.."|r ".."|cffD7BEA5"..UnitLevel("player").."|r")
-		else
-			self.Value:SetFormattedText("|cff%02x%02x%02x%d%%|r |cffD7BEA5-|r |cff%02x%02x%02x%s|r", r * 255, g * 255, b * 255, floor(current / max * 100), Pr * 255, Pg * 255, Pb * 255, TukuiUnitFrames.ShortValue(current))
-		end
+	if (unit == "player") or (unit == "pet") then
+		self.Value:SetFormattedText(Color.."%s / %s|r", current, max)
 	end
 end
 
@@ -338,7 +352,10 @@ function TukuiUnitFrames:PostCreateAura(button)
 
 	-- Skin aura button
 	button:SetTemplate("Default")
-	button:CreateShadow()
+	
+	if not button:GetParent().IsRaid then
+		button:CreateShadow()
+	end
 
 	button.Remaining = button:CreateFontString(nil, "OVERLAY")
 	button.Remaining:SetFont(C.Medias.Font, 12, "THINOUTLINE")
@@ -356,7 +373,7 @@ function TukuiUnitFrames:PostCreateAura(button)
 	button.icon:SetTexCoord(unpack(T.IconCoord))
 	button.icon:SetDrawLayer("ARTWORK")
 
-	button.count:Point("BOTTOMRIGHT", 3, 3)
+	button.count:Point("BOTTOMRIGHT", 3, -3)
 	button.count:SetJustifyH("RIGHT")
 	button.count:SetFont(C.Medias.Font, 9, "THICKOUTLINE")
 	button.count:SetTextColor(0.84, 0.75, 0.65)
@@ -390,7 +407,7 @@ function TukuiUnitFrames:PostUpdateAura(unit, button, index, offset, filter, isD
 
 	if button then
 		if(button.filter == "HARMFUL") then
-			if(not UnitIsFriend("player", unit) and not button.isPlayer) then
+			if (not UnitIsFriend("player", unit) and not button.isPlayer) then
 				button.icon:SetDesaturated(true)
 				button:SetBorderColor(unpack(C["General"].BorderColor))
 			else
@@ -401,7 +418,7 @@ function TukuiUnitFrames:PostUpdateAura(unit, button, index, offset, filter, isD
 		else
 			-- These classes can purge, show them
 			if (button.Animation) and (T.MyClass == "PRIEST") or (T.MyClass == "SHAMAN") then
-				if (DType == "Magic") and not UnitIsFriend("player", unit) and not button.Animation.Playing then
+				if (DType == "Magic") and (not UnitIsFriend("player", unit)) and (not button.Animation.Playing) then
 					button.Animation:Play()
 					button.Animation.Playing = true
 				else
@@ -483,40 +500,6 @@ function TukuiUnitFrames:DisplayNameplatePowerAndCastBar(unit, cur, min, max)
 	end
 end
 
-local LastEnergyTickTime = GetTime()
-local LastEnergyValue = 0
-
-function TukuiUnitFrames:SetEnergyTickValue(timer)
-	local Width = self:GetWidth()
-	local Min, Max = UnitPower("player"), UnitPowerMax("player")
-	local PType = UnitPowerType("player")
-
-	if Min == Max or PType ~= Enum.PowerType.Energy then
-		self.PowerTick.Texture:Hide()
-	else
-		local Position = (Width * timer) / 2
-
-		self.PowerTick.Texture:Show()
-		self.PowerTick.Texture:SetPoint("CENTER", self, "LEFT", Position, 0)
-	end
-end
-
-function TukuiUnitFrames:OnUpdateEnergyTick()
-	local CurrentEnergy = UnitPower("player", Enum.PowerType.Energy)
-	local Power = self:GetParent()
-
-	local Now = GetTime()
-	local Timer = Now - LastEnergyTickTime
-
-	if CurrentEnergy > LastEnergyValue or Now >= LastEnergyTickTime + 2 then
-		LastEnergyTickTime = Now
-	end
-
-	TukuiUnitFrames.SetEnergyTickValue(Power, Timer)
-
-	LastEnergyValue = CurrentEnergy
-end
-
 function TukuiUnitFrames:GetPartyFramesAttributes()
 	return
 		"TukuiParty",
@@ -551,8 +534,8 @@ function TukuiUnitFrames:GetRaidFramesAttributes()
 			self:SetWidth(header:GetAttribute("initial-width"))
 			self:SetHeight(header:GetAttribute("initial-height"))
 		]],
-		"initial-width", 66,
-		"initial-height", 50,
+		"initial-width", 79,
+		"initial-height", 55,
 		"showParty", true,
 		"showRaid", true,
 		"showPlayer", true,
@@ -567,6 +550,33 @@ function TukuiUnitFrames:GetRaidFramesAttributes()
 		"unitsPerColumn", C["Raid"].MaxUnitPerColumn,
 		"columnSpacing", 4,
 		"columnAnchorPoint", "LEFT"
+end
+
+function TukuiUnitFrames:GetPetRaidFramesAttributes()
+	local Properties = C.Party.Enable and "custom [@raid6,exists] show;hide" or "solo,party,raid"
+
+	return
+		"TukuiRaidPet",
+		"SecureGroupPetHeaderTemplate",
+		Properties,
+		"showParty", C["Raid"].ShowPets,
+		"showRaid", C["Raid"].ShowPets,
+		"showPlayer", true,
+		"showSolo", false,
+		"maxColumns", math.ceil(40 / 5),
+		"point", "TOP",
+		"unitsPerColumn", C["Raid"].MaxUnitPerColumn,
+		"columnSpacing", 4,
+		"columnAnchorPoint", "LEFT",
+		"yOffset", -4,
+		"xOffset", 4,
+		"initial-width", 79,
+		"initial-height", 55,
+		"oUF-initialConfigFunction", [[
+			local header = self:GetParent()
+			self:SetWidth(header:GetAttribute("initial-width"))
+			self:SetHeight(header:GetAttribute("initial-height"))
+		]]
 end
 
 function TukuiUnitFrames:Style(unit)
@@ -584,7 +594,7 @@ function TukuiUnitFrames:Style(unit)
 		TukuiUnitFrames.TargetOfTarget(self)
 	elseif (unit == "pet") then
 		TukuiUnitFrames.Pet(self)
-	elseif (unit:find("raid")) then
+	elseif (unit:find("raid")) or (unit:find("raidpet")) then
 		if Parent:match("Party") then
 			TukuiUnitFrames.Party(self)
 		else
@@ -656,6 +666,16 @@ function TukuiUnitFrames:CreateUnits()
 			local Raid = oUF:SpawnHeader(TukuiUnitFrames:GetRaidFramesAttributes())
 			Raid:SetParent(UIParent)
 			Raid:Point("TOPLEFT", UIParent, "TOPLEFT", 12, -200)
+			
+			if C.Raid.ShowPets then
+				local Pet = oUF:SpawnHeader(TukuiUnitFrames:GetPetRaidFramesAttributes())
+				Pet:SetParent(UIParent)
+				Pet:Point("TOPLEFT", Raid, "TOPRIGHT", 4, 0)
+
+				TukuiUnitFrames.Headers.RaidPet = Pet
+
+				Movers:RegisterFrame(Pet)
+			end
 
 			TukuiUnitFrames.Headers.Raid = Raid
 
@@ -669,7 +689,7 @@ function TukuiUnitFrames:CreateUnits()
 	end
 
 	if C.NamePlates.Enable then
-		oUF:SpawnNamePlates("Tukui", TukuiUnitFrames.NameplatesPostUpdate, TukuiUnitFrames.NameplatesVars)
+		oUF:SpawnNamePlates("Tukui", nil, TukuiUnitFrames.NameplatesVars)
 	end
 end
 

@@ -96,14 +96,14 @@ local schoolColors = {
 	[SCHOOL_MASK_FIRE       ] = rgb(255, 128, 000),
 	[SCHOOL_MASK_FROST      ] = rgb(128, 255, 255),
 	[SCHOOL_MASK_HOLY       ] = rgb(255, 230, 128),
-	[SCHOOL_MASK_NATURE     ] = rgb(77, 255, 77),
+	[SCHOOL_MASK_NATURE     ] = rgb(204, 204, 0),
 	[SCHOOL_MASK_NONE       ] = rgb(255, 255, 255),
 	[SCHOOL_MASK_PHYSICAL   ] = rgb(179, 26, 26),
 	[SCHOOL_MASK_SHADOW     ] = rgb(128, 128, 255),
 	-- multi-schools
 	[SCHOOL_MASK_ASTRAL     ] = rgb(166, 192, 166),
 	[SCHOOL_MASK_CHAOS      ] = rgb(182, 164, 142),
-	[SCHOOL_MASK_ELEMENTAL  ] = rgb(153, 212, 111),
+	[SCHOOL_MASK_ELEMENTAL  ] = rgb(51, 153, 255),
 	[SCHOOL_MASK_MAGIC      ] = rgb(183, 187, 162),
 	[SCHOOL_MASK_PLAGUE     ] = rgb(103, 192, 166),
 	[SCHOOL_MASK_RADIANT    ] = rgb(255, 178, 64),
@@ -172,6 +172,7 @@ local animationsByEvent = {
 	["REFLECT"  ] = "fountain",
 	["RESIST"   ] = "fountain",
 	["WOUND"    ] = "fountain",
+	["COMBAT"   ] = "fountain",
 }
 
 local animationsByFlag = {
@@ -258,11 +259,18 @@ local function flush(self)
 	end
 end
 
-local function Update(self, _, unit, event, flag, amount, school, texture)
+local function Update(self, bevent, unit, event, flag, amount, school, texture)
+	if bevent == "PLAYER_REGEN_ENABLED" or bevent == "PLAYER_REGEN_DISABLED" then
+		unit = "player"
+		event = "COMBAT"
+	end
+	
 	if self.unit ~= unit then return end
+	
 	local element = self.FloatingCombatFeedback
 
 	local unitGUID = UnitGUID(unit)
+	
 	if unitGUID ~= element.unitGUID then
 		flush(element)
 		element.unitGUID = unitGUID
@@ -273,7 +281,7 @@ local function Update(self, _, unit, event, flag, amount, school, texture)
 
 	animation = element.animationsByFlag[flag] or animation
 
-	local color = element.tryToColorBySchool[event] and element.schoolColors[school] or element.colors[event]
+	local color = element.tryToColorBySchool[event] and element.schoolColors[school] or element.colors[event] or rgb(255, 0, 0)
 
 	local text
 	if event == "WOUND" then
@@ -281,6 +289,16 @@ local function Update(self, _, unit, event, flag, amount, school, texture)
 			text = element.abbreviateNumbers and AbbreviateNumbers(amount) or BreakUpLargeNumbers(amount)
 		elseif flag ~= "" and flag ~= "CRITICAL" and flag ~= "CRUSHING" and flag ~= "GLANCING" then
 			text = _G[flag]
+		end
+	elseif event == "COMBAT" then
+		if bevent == "PLAYER_REGEN_DISABLED" then
+			color = rgb(255, 0, 0)
+			
+			text = "+ "..COMBAT
+		else
+			color = rgb(0, 255, 0)
+			
+			text = "- "..COMBAT
 		end
 	else
 		if amount ~= 0 then
@@ -508,6 +526,8 @@ local function EnableCLEU(element, state, force)
 			cleuElements[element] = true
 		else
 			frame:RegisterEvent("UNIT_COMBAT", Path)
+			frame:RegisterEvent("PLAYER_REGEN_ENABLED", Path, true)
+			frame:RegisterEvent("PLAYER_REGEN_DISABLED", Path, true)
 
 			unGUIDe(frame)
 
@@ -580,6 +600,8 @@ local function Disable(self)
 		flush(element)
 
 		self:UnregisterEvent("UNIT_COMBAT", Path)
+		self:UnregisterEvent("PLAYER_REGEN_ENABLED", Path, true)
+		self:UnregisterEvent("PLAYER_REGEN_DISABLED", Path, true)
 
 		unGUIDe(self)
 

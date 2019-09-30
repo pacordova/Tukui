@@ -2,8 +2,8 @@ local T, C, L = select(2, ...):unpack()
 
 local _G = _G
 local Noop = function() end
-local Font, FontPath
 local ReplaceBags = 0
+local NeedBagRefresh, NeedBankRefresh
 local LastButtonBag, LastButtonBank
 local Token1, Token2, Token3 = BackpackTokenFrameToken1, BackpackTokenFrameToken2, BackpackTokenFrameToken3
 local NUM_CONTAINER_FRAMES = NUM_CONTAINER_FRAMES
@@ -32,16 +32,6 @@ local BlizzardBags = {
 	CharacterBag3Slot,
 }
 
-local BlizzardBank = {
-	BankSlotsFrame["Bag1"],
-	BankSlotsFrame["Bag2"],
-	BankSlotsFrame["Bag3"],
-	BankSlotsFrame["Bag4"],
-	BankSlotsFrame["Bag5"],
-	BankSlotsFrame["Bag6"],
-	BankSlotsFrame["Bag7"],
-}
-
 local BagProfessions = {
 	[8] = "Leatherworking",
 	[16] = "Inscription",
@@ -52,6 +42,8 @@ local BagProfessions = {
 	[1024] = "Mining",
 	[32768] = "Fishing",
 }
+
+local BagSize = {}
 
 function Bags:GetBagProfessionType(bag)
 	local BagType = select(2, GetContainerNumFreeSlots(bag))
@@ -102,15 +94,6 @@ function Bags:SkinBagButton()
 	if BattlePay then
 		BattlePay:SetAlpha(0)
 	end
-
-	self.AutoCastShine = CreateFrame('Frame', '$parentShine', self, 'AutoCastShineTemplate')
-
-	for _, sparks in pairs(self.AutoCastShine.sparkles) do
-		sparks:SetSize(sparks:GetWidth() * 2, sparks:GetHeight() * 2)
-	end
-
-	self:HookScript("OnEnter", function(self) AutoCastShine_AutoCastStop(self.AutoCastShine) end)
-	self:HookScript("OnHide", function(self) AutoCastShine_AutoCastStop(self.AutoCastShine) end)
 
 	self:SetNormalTexture("")
 	self:SetPushedTexture("")
@@ -191,6 +174,7 @@ function Bags:CreateContainer(storagetype, ...)
 		ToggleBagsContainer:SetParent(Container)
 		ToggleBagsContainer:EnableMouse(true)
 		ToggleBagsContainer:SkinCloseButton()
+		ToggleBagsContainer:SetScript("OnEnter", GameTooltip_Hide)
 		ToggleBagsContainer:SetScript("OnMouseUp", function(self, button)
 			CloseAllBags()
 			CloseBankBagFrames()
@@ -237,7 +221,7 @@ function Bags:CreateContainer(storagetype, ...)
 		SearchBox:SetMultiLine(false)
 		SearchBox:EnableMouse(true)
 		SearchBox:SetAutoFocus(false)
-		SearchBox:SetFontObject(ChatFontNormal)
+		SearchBox:SetFont(C.Medias.Font, 12)
 		SearchBox:Width(Container:GetWidth() - 28)
 		SearchBox:Height(16)
 		SearchBox:SetPoint("BOTTOM", Container, -1, 10)
@@ -263,6 +247,7 @@ function Bags:CreateContainer(storagetype, ...)
 		ToggleBags.Texture:Size(14)
 		ToggleBags.Texture:Point("CENTER")
 		ToggleBags.Texture:SetTexture(C.Medias.ArrowUp)
+		ToggleBags:SetScript("OnEnter", GameTooltip_Hide)
 		ToggleBags:SetScript("OnClick", function(self)
 			local Purchase = BankFramePurchaseInfo
 			local BanksContainer = Bags.Bank.BagsContainer
@@ -294,7 +279,14 @@ function Bags:CreateContainer(storagetype, ...)
 		Sort.Texture:SetSize(14, 14)
 		Sort.Texture:Point("CENTER")
 		Sort.Texture:SetTexture(C.Medias.Sort)
+		Sort:SetScript("OnEnter", GameTooltip_Hide)
 		Sort:SetScript("OnClick", function()
+			if InCombatLockdown() then
+				T.Print("You cannot sort your bag in combat")
+					
+				return
+			end
+			
 			if TukuiBank:IsShown() then
 				SetSortBagsRightToLeft(true)
 				SortBankBags()
@@ -372,7 +364,6 @@ function Bags:CreateContainer(storagetype, ...)
 		BankFrame:EnableMouse(false)
 
 		Container.BagsContainer = BankBagsContainer
-		Container.SortButton = SortButton
 	end
 
 	self[storagetype] = Container
@@ -390,6 +381,10 @@ function Bags:SlotUpdate(id, button)
 	if (button.ItemID == ItemID) then
 		return
 	end
+	
+	if button.Quest then
+		button.Quest:Hide()
+	end
 
 	button.ItemID = ItemID
 
@@ -397,8 +392,6 @@ function Bags:SlotUpdate(id, button)
 		local itemName, itemString, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture = GetItemInfo(itemLink)
 		
 		if itemString then
-			local _, itemID = strsplit(":", itemString)
-
 			if (itemType == TRANSMOG_SOURCE_2) then
 				QuestItem = true
 			end
@@ -406,11 +399,27 @@ function Bags:SlotUpdate(id, button)
 	end
 	
 	if QuestItem then
+		if not button.QuestTex then
+			button.Quest = CreateFrame("Frame", nil, button)
+			button.Quest:SetSize(8, button:GetHeight())
+			button.Quest:SetTemplate()
+			button.Quest:SetPoint("TOPLEFT")
+			button.Quest:SetBorderColor(1, 1, 0)
+			button.Quest.Texture = button.Quest:CreateTexture(nil, "OVERLAY")
+			button.Quest.Texture:SetTexture("Interface\\QuestFrame\\AutoQuest-Parts")
+			button.Quest.Texture:SetTexCoord(0.13476563, 0.17187500, 0.01562500, 0.53125000)
+			button.Quest.Texture:SetSize(8, 16)
+			button.Quest.Texture:SetPoint("CENTER")
+		end
+		
+		button.Quest:Show()
 		button:SetBorderColor(1, 1, 0)
-	elseif Rarity and Rarity > 1 then
-		button:SetBorderColor(GetItemQualityColor(Rarity))
 	else
-		button:SetBorderColor(unpack(C["General"].BorderColor))
+		if Rarity and Rarity > 1 then
+			button:SetBorderColor(GetItemQualityColor(Rarity))
+		else
+			button:SetBorderColor(unpack(C["General"].BorderColor))
+		end
 	end
 end
 
@@ -471,9 +480,25 @@ function Bags:BagUpdate(id)
 end
 
 function Bags:UpdateAllBags()
+	-- check if containers changed
+	for i = 1, 5 do
+		local ContainerSize = _G["ContainerFrame"..i].size
+		
+		if ContainerSize ~= BagSize[i] then
+			NeedBagRefresh = true
+			
+			BagSize[i] = ContainerSize
+		end
+	end
+	
+	if not NeedBagRefresh then
+		return
+	end
+
+	-- Refresh layout if a refresh if found
 	local NumRows, LastRowButton, NumButtons, LastButton = 0, ContainerFrame1Item1, 1, ContainerFrame1Item1
 	local FirstButton
-
+	
 	for Bag = 5, 1, -1 do
 		local ID = Bag - 1
 		local Slots = GetContainerNumSlots(ID)
@@ -493,19 +518,6 @@ function Bags:UpdateAllBags()
 			Button:SetFrameStrata("HIGH")
 			Button:SetFrameLevel(2)
 
-			Button.newitemglowAnim:Stop()
-			Button.newitemglowAnim.Play = Noop
-
-			Button.flashAnim:Stop()
-			Button.flashAnim.Play = Noop
-
-			Money:ClearAllPoints()
-			Money:Show()
-			Money:SetPoint("TOPLEFT", Bags.Bag, "TOPLEFT", 8, -10)
-			Money:SetFrameStrata("HIGH")
-			Money:SetFrameLevel(2)
-			Money:SetScale(1)
-
 			if (Button == FirstButton) then
 				Button:SetPoint("TOPLEFT", Bags.Bag, "TOPLEFT", 10, -40)
 				LastRowButton = Button
@@ -522,24 +534,53 @@ function Bags:UpdateAllBags()
 				NumButtons = NumButtons + 1
 			end
 
-			Bags.SkinBagButton(Button)
-
 			LastButton = Button
+
+			if not Button.IsSkinned then
+				Bags.SkinBagButton(Button)
+			end
+			
+			if not Money.IsMoved then
+				Money:ClearAllPoints()
+				Money:Show()
+				Money:SetPoint("TOPLEFT", Bags.Bag, "TOPLEFT", 8, -10)
+				Money:SetFrameStrata("HIGH")
+				Money:SetFrameLevel(2)
+				Money:SetScale(1)
+				Money.IsMoved = true
+			end
 		end
 
 		Bags:BagUpdate(ID)
 	end
+	
+	NeedBagRefresh = false
 
-	Bags.Bag:SetHeight(((ButtonSize + ButtonSpacing) * (NumRows + 1) + 64 + (ButtonSpacing * 4)) - ButtonSpacing)
+	self.Bag:SetHeight(((ButtonSize + ButtonSpacing) * (NumRows + 1) + 64 + (ButtonSpacing * 4)) - ButtonSpacing)
 end
 
 function Bags:UpdateAllBankBags()
+	-- check if containers changed
+	for i = 6, 11 do
+		local ContainerSize = _G["ContainerFrame"..i].size
+
+		if ContainerSize ~= BagSize[i] then
+			NeedBankRefresh = true
+			
+			BagSize[i] = ContainerSize
+		end
+	end
+	
+	if not NeedBankRefresh then
+		return
+	end
+
 	local NumRows, LastRowButton, NumButtons, LastButton = 0, ContainerFrame1Item1, 1, ContainerFrame1Item1
+	local BankFrameMoneyFrame = BankFrameMoneyFrame
 
 	for Bank = 1, 24 do
 		local Button = _G["BankFrameItem"..Bank]
 		local Money = ContainerFrame2MoneyFrame
-		local BankFrameMoneyFrame = BankFrameMoneyFrame
 
 		Button:ClearAllPoints()
 		Button:SetWidth(ButtonSize)
@@ -548,8 +589,6 @@ function Bags:UpdateAllBankBags()
 		Button:SetFrameLevel(2)
 		Button:SetScale(1)
 		Button.IconBorder:SetAlpha(0)
-
-		BankFrameMoneyFrame:Hide()
 
 		if (Bank == 1) then
 			Button:SetPoint("TOPLEFT", Bags.Bank, "TOPLEFT", 10, -10)
@@ -567,18 +606,22 @@ function Bags:UpdateAllBankBags()
 			NumButtons = NumButtons + 1
 		end
 
-		Bags.SkinBagButton(Button)
+		if not Button.IsSkinned then
+			Bags.SkinBagButton(Button)
+		end
+
 		Bags.SlotUpdate(self, -1, Button)
 
 		LastButton = Button
 	end
 
-	for Bag = 6, 12 do
+	BankFrameMoneyFrame:Hide()
+
+	for Bag = 6, 11 do
 		local Slots = GetContainerNumSlots(Bag - 1)
 
 		for Item = Slots, 1, -1 do
 			local Button = _G["ContainerFrame"..Bag.."Item"..Item]
-
 			Button:ClearAllPoints()
 			Button:SetWidth(ButtonSize)
 			Button:SetHeight(ButtonSize)
@@ -605,6 +648,8 @@ function Bags:UpdateAllBankBags()
 			LastButton = Button
 		end
 	end
+	
+	NeedBankRefresh = false
 
 	Bags.Bank:SetHeight(((ButtonSize + ButtonSpacing) * (NumRows + 1) + 20) - ButtonSpacing)
 end
@@ -792,6 +837,9 @@ function Bags:OnEvent(event, ...)
 		local Bank = self.Bank
 
 		Bank:Hide()
+		
+		-- Clear search on close
+		self.Bag.SearchBox:SetText("")
 	elseif (event == "BANKFRAME_OPENED") then
 		local Bank = self.Bank
 
@@ -810,8 +858,6 @@ function Bags:Enable()
 	-- Bug with mouse click
 	GroupLootContainer:EnableMouse(false)
 
-	Font = T.GetFont(C["Bags"].Font)
-	FontPath = _G[Font]:GetFont()
 	ButtonSize = C.Bags.ButtonSize
 	ButtonSpacing = C.Bags.Spacing
 	ItemsPerRow = C.Bags.ItemsPerRow

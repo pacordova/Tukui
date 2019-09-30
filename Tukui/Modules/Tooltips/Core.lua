@@ -39,15 +39,15 @@ local Classification = {
 }
 
 function Tooltip:CreateAnchor()
-	local DataTextRight = T["Panels"].DataTextRight
+	local RightChat = T["Panels"].RightChatBG
 	local Movers = T["Movers"]
 
 	local Anchor = CreateFrame("Frame", "TukuiTooltipAnchor", UIParent)
-	Anchor:Size(200, DataTextRight:GetHeight() - 2)
+	Anchor:Size(200, 21)
 	Anchor:SetFrameStrata("TOOLTIP")
 	Anchor:SetFrameLevel(20)
 	Anchor:SetClampedToScreen(true)
-	Anchor:SetPoint("BOTTOMRIGHT", DataTextRIGHT, -27, 176)
+	Anchor:SetPoint("BOTTOMRIGHT", RightChat, "TOPRIGHT", 0, -13)
 	Anchor:SetMovable(true)
 
 	self.Anchor = Anchor
@@ -60,14 +60,14 @@ function Tooltip:SetTooltipDefaultAnchor(parent)
 
 	if (C.Tooltips.MouseOver) then
 		if (parent ~= UIParent) then
-			self:SetOwner(Anchor)
-			self:SetAnchorType("ANCHOR_TOPRIGHT", 0, 9)
+			self:ClearAllPoints()
+			self:SetPoint("BOTTOMRIGHT", Anchor, "TOPRIGHT", 0, 9)
 		else
 			self:SetOwner(parent, "ANCHOR_CURSOR")
 		end
 	else
-		self:SetOwner(Anchor)
-		self:SetAnchorType("ANCHOR_TOPRIGHT", 0, 9)
+		self:ClearAllPoints()
+		self:SetPoint("BOTTOMRIGHT", Anchor, "TOPRIGHT", 0, 9)
 	end
 end
 
@@ -110,11 +110,7 @@ function Tooltip:OnTooltipSetUnit()
 
 	if (not Unit) then
 		self:Hide()
-		return
-	end
-
-	if (self:GetOwner() ~= UIParent and C.Tooltips.MouseOver) then
-		self:Hide()
+		
 		return
 	end
 
@@ -196,25 +192,46 @@ function Tooltip:OnTooltipSetUnit()
 		GameTooltip:AddLine(" ")
 		GameTooltip:AddLine(UnitName(Unit .. "target"), R, G, B)
 	end
+	
+	if (C["Tooltips"].UnitHealthText) then
+		Tooltip.SetHealthValue(HealthBar, Unit)
+	end
 
 	self.fadeOut = nil
 end
 
-function Tooltip:SetColor()
-	local GetMouseFocus = GetMouseFocus()
+function Tooltip:SetColor(unit)
+	local Unit = unit
+	local R, G, B
+	
+	if not Unit then
+		local GetMouseFocus = GetMouseFocus()
 
-	local Unit = select(2, self:GetUnit()) or (GetMouseFocus and GetMouseFocus.GetAttribute and GetMouseFocus:GetAttribute("unit"))
+		Unit = select(2, self:GetUnit()) or (GetMouseFocus and GetMouseFocus.GetAttribute and GetMouseFocus:GetAttribute("unit"))
 
-	if (not Unit) and (UnitExists("mouseover")) then
-		Unit = 'mouseover'
+		if (not Unit) and (UnitExists("mouseover")) then
+			Unit = "mouseover"
+		end
 	end
 
-	self:SetBackdropColor(unpack(C["General"].BackdropColor))
+	if not Unit then
+		local Link = select(2, self:GetItem())
+		local Quality = Link and select(3, GetItemInfo(Link))
+
+		if (Quality and Quality >= 2) then
+			R, G, B = GetItemQualityColor(Quality)
+			
+			self.Backdrop:SetBorderColor(R, G, B)
+		else
+			self.Backdrop:SetBorderColor(unpack(C["General"].BorderColor))
+		end
+
+		return
+	end
 
 	local Reaction = Unit and UnitReaction(Unit, "player")
 	local Player = Unit and UnitIsPlayer(Unit)
 	local Friend = Unit and UnitIsFriend("player", Unit)
-	local R, G, B
 
 	if Player and Friend then
 		local Class = select(2, UnitClass(Unit))
@@ -235,26 +252,10 @@ function Tooltip:SetColor()
 		HealthBar.Backdrop:SetBorderColor(R, G, B)
 		
 		self.Backdrop:SetBorderColor(R, G, B)
-	else
-		local Link = select(2, self:GetItem())
-		local Quality = Link and select(3, GetItemInfo(Link))
-
-		if (Quality and Quality >= 2) then
-			R, G, B = GetItemQualityColor(Quality)
-			
-			self.Backdrop:SetBorderColor(R, G, B)
-		else
-			local Color = T.Colors
-
-			HealthBar:SetStatusBarColor(unpack(Color.reaction[5]))
-			HealthBar.Backdrop:SetBorderColor(unpack(C["General"].BorderColor))
-			
-			self.Backdrop:SetBorderColor(unpack(C["General"].BorderColor))
-		end
 	end
 end
 
-function Tooltip:Skin()
+function Tooltip:Skin(unit)
 	if (not self.IsSkinned) then
 		self:StripTextures()
 		self:CreateBackdrop()
@@ -263,7 +264,7 @@ function Tooltip:Skin()
 	end
 
 	if not self:IsForbidden() and self == GameTooltip then
-		Tooltip.SetColor(self)
+		Tooltip.SetColor(self, unit)
 	end
 end
 
@@ -276,6 +277,18 @@ function Tooltip:OnTooltipSetItem()
 
 		self:AddLine(" ")
 		self:AddDoubleLine(Link and Link ~= nil and ID, ItemCount and ItemCount > 1 and Count)
+	end
+end
+
+function Tooltip:SetHealthValue(unit)
+	if (UnitIsDeadOrGhost(unit)) then
+		self.Text:SetText(DEAD)
+	else
+		local LibCurrentHP, LibMaxHP, IsFound = LibClassicMobHealth:GetUnitHealth(unit)
+		local Health, MaxHealth = UnitHealth(unit), UnitHealthMax(unit)
+		local String = (IsFound and LibCurrentHP .. " / " .. LibMaxHP) or (Health and MaxHealth and (floor(Health / MaxHealth * 100) .. "%")) or "???"
+		
+		self.Text:SetText(String)
 	end
 end
 
@@ -298,15 +311,7 @@ function Tooltip:OnValueChanged()
 		return
 	end
 	
-	local LibCurrentHP, LibMaxHP, IsFound = LibClassicMobHealth:GetUnitHealth(unit)
-	local Health, MaxHealth = UnitHealth(unit), UnitHealthMax(unit)
-	local Value = (IsFound and LibCurrentHP .. " / " .. LibMaxHP) or (floor(Health / MaxHealth * 100) .. "%")
-	
-	if (UnitIsDeadOrGhost(unit)) then
-		self.Text:SetText(DEAD)
-	else
-		self.Text:SetText(Value)
-	end
+	Tooltip.SetHealthValue(HealthBar, unit)
 end
 
 function Tooltip:HideInCombat(event)
@@ -315,22 +320,54 @@ function Tooltip:HideInCombat(event)
 	end
 end
 
-function Tooltip:Enable()
-	if (not C.Tooltips.Enable) then
-		return
+function Tooltip:SetCompareItemBorderColor(anchorFrame)
+	for i = 1, 2 do
+		local TT = _G["ShoppingTooltip"..i]
+		
+		if TT:IsShown() then
+			local FrameLevel = GameTooltip:GetFrameLevel()
+			local Item = TT:GetItem()
+			
+			if FrameLevel == TT:GetFrameLevel() then
+				TT:SetFrameLevel(i + 1)
+			end
+			
+			if Item then
+				local Quality = select(3, GetItemInfo(Item))
+				
+				if Quality then
+					local R, G, B = GetItemQualityColor(Quality)
+
+					TT.Backdrop:SetBorderColor(R, G, B)
+				else
+					TT.Backdrop:SetBorderColor(unpack(C["General"].BorderColor))
+				end
+			end
+		end
 	end
-	
-	self:CreateAnchor()
+end
 
+function Tooltip:AddHooks()
 	hooksecurefunc("GameTooltip_SetDefaultAnchor", self.SetTooltipDefaultAnchor)
-
+	hooksecurefunc("GameTooltip_ShowCompareItem", self.SetCompareItemBorderColor)
+	hooksecurefunc("GameTooltip_UnitColor", function(unit) Tooltip.Skin(GameTooltip, unit) end)
+	
 	for _, Tooltip in pairs(Tooltip.Tooltips) do
 		Tooltip:HookScript("OnShow", self.Skin)
 	end
 	
 	GameTooltip:HookScript("OnTooltipSetUnit", self.OnTooltipSetUnit)
 	GameTooltip:HookScript("OnTooltipSetItem", self.OnTooltipSetItem)
+end
 
+function Tooltip:Enable()
+	if (not C.Tooltips.Enable) then
+		return
+	end
+	
+	self:CreateAnchor()
+	self:AddHooks()
+	
 	ItemRefCloseButton:SkinCloseButton()
 
 	HealthBar:SetScript("OnValueChanged", self.OnValueChanged)
@@ -355,7 +392,14 @@ function Tooltip:Enable()
 		self:SetScript("OnEvent", Tooltip.HideInCombat)
 	end
 	
+	if C.Tooltips.AlwaysCompareItems then
+		SetCVar("alwaysCompareItems", 1)
+	else
+		SetCVar("alwaysCompareItems", 0)
+	end
+	
 	GameTooltip_SetBackdropStyle = function() end -- hope it doesn't taint
+	GameTooltip_UpdateStyle = function() return end
 end
 
 T["Tooltips"] = Tooltip

@@ -1917,8 +1917,10 @@ GUI.Toggle = function(self)
 
 				Toggle:Show()
 			end
-						
-			Pet:Show()
+			
+			if T.Panels.PetActionBar:IsShown() then
+				Pet:Show()
+			end
 		end
 	end
 end
@@ -2017,9 +2019,6 @@ local Bags = function(self)
 	Window:CreateSlider("Bags", "ButtonSize", "Set bag slot size", 20, 36, 1)
 	Window:CreateSlider("Bags", "Spacing", "Set bag slot spacing", 0, 8, 1)
 	Window:CreateSlider("Bags", "ItemsPerRow", "Set items per row", 8, 16, 1)
-	
-	Window:CreateSection("Font")
-	Window:CreateDropdown("Bags", "Font", "Set bag font", "Font")
 end
 
 local Chat = function(self)
@@ -2028,11 +2027,18 @@ local Chat = function(self)
 	Window:CreateSection("Enable")
 	Window:CreateSwitch("Chat", "Enable", "Enable chat module")
 	Window:CreateSwitch("Chat", "WhisperSound", "Enable whisper sound")
+				
+	Window:CreateSection("Size [Tukui 18 theme only]")
+	Window:CreateSlider("Chat", "LeftWidth", "Set left chat width", 300, 600, 10)
+	Window:CreateSlider("Chat", "LeftHeight", "Set left chat height", 150, 600, 10)
+	Window:CreateSlider("Chat", "RightWidth", "Set right chat width", 300, 600, 10)
+	Window:CreateSlider("Chat", "RightHeight", "Set right chat height", 150, 600, 10)
 	
 	Window:CreateSection("Styling")
 	Window:CreateSwitch("Chat", "ShortChannelName", "Shorten channel names")
 	Window:CreateSlider("Chat", "ScrollByX", "Set lines to scroll", 1, 6, 1)
 	Window:CreateSwitch("Chat", "LinkBrackets", "Display URL links in brackets")
+	Window:CreateSwitch("Chat", "RightChatAlignRight", "Align text to right on second chat frame")
 	Window:CreateColorSelection("Chat", "LinkColor", "Link color")
 	
 	Window:CreateSection("Font")
@@ -2082,7 +2088,9 @@ local Misc = function(self)
 	Window:CreateSection("Screensaver")
 	Window:CreateSwitch("Misc", "AFKSaver", "Enable AFK screensaver")
 	Window:CreateSection("Inventory")
-	Window:CreateSwitch("Misc", "AutoSellJunk", "Sell junk automatically when visiting a vendor?")	
+	Window:CreateSwitch("Misc", "AutoSellJunk", "Sell junk automatically when visiting a vendor?")
+	Window:CreateSection("Objective Tracker")
+	Window:CreateDropdown("Misc", "ObjectiveTrackerFont", "Set objective tracker font", "Font")
 end
 
 local NamePlates = function(self)
@@ -2123,8 +2131,10 @@ local Raid = function(self)
 	
 	Window:CreateSection("Enable")
 	Window:CreateSwitch("Raid", "Enable", "Enable raid module")
-	Window:CreateSwitch("Raid", "DebuffWatch", "Enable debuffwatch module")
+	Window:CreateSwitch("Raid", "ShowPets", "Enable raid module for pets")
+	Window:CreateSwitch("Raid", "DebuffWatch", "Display dispellable debuffs")
 	Window:CreateSwitch("Raid", "VerticalHealth", "Enable vertical health")
+	Window:CreateSwitch("Raid", "MyRaidBuffs", "See my buffs on raid frames")
 	
 	Window:CreateSection("Styling")
 	Window:CreateSlider("Raid", "RangeAlpha", "Set out of range alpha", 0, 1, 0.1)
@@ -2142,6 +2152,7 @@ local Tooltips = function(self)
 	Window:CreateSection("Enable")
 	Window:CreateSwitch("Tooltips", "Enable", "Enable tooltip module")
 	Window:CreateSwitch("Tooltips", "UnitHealthText", "Enable unit health text")
+	Window:CreateSwitch("Tooltips", "AlwaysCompareItems", "Always compare items")
 	
 	Window:CreateSection("Styling")
 	Window:CreateSwitch("Tooltips", "HideInCombat", "Hide tooltip while in combat")
@@ -2182,6 +2193,8 @@ local UnitFrames = function(self)
 	
 	Window:CreateSection("Enable")
 	Window:CreateSwitch("UnitFrames", "Enable", "Enable unitframe module")
+	Window:CreateSwitch("UnitFrames", "OOCNameLevel", "Display my name/level while out of combat")
+	Window:CreateSwitch("UnitFrames", "OOCPetNameLevel", "Display my pet name/level while out of combat")
 	Window:CreateSwitch("UnitFrames", "Portrait", "Enable unit portraits")
 	Window:CreateSwitch("UnitFrames", "CastBar", "Enable castbar")	
 	Window:CreateSwitch("UnitFrames", "EnergyTick", "Enable energy ticks")
