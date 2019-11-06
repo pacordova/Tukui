@@ -4,7 +4,7 @@ stdenv.mkDerivation rec {
     name = "st";
     version = "0.9";
     src = fetchurl {
-        url = "https://gitlab.com/pacmeister/st/-/archive/master/st-master.tar.gz";
+        url = "https://github.com/pacordova/st/archive/master/st-master.tar.gz";
         sha256 = null;
     };
     nativeBuildInputs = [ pkgconfig ];
