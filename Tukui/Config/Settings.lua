@@ -92,12 +92,12 @@ C["Loot"] = {
 }
 
 C["Misc"] = {
-	["WorldMapEnable"] = true,
+	["WorldMapEnable"] = false,
 	["ExperienceEnable"] = true,
 	["ReputationEnable"] = true,
 	["ErrorFilterEnable"] = true,
 	["AutoSellJunk"] = true,
-	["AFKSaver"] = true,
+	["AFKSaver"] = false,
 	["FadeWorldMapWhileMoving"] = false,
 	["ObjectiveTrackerFont"] = "Tukui Outline",
 }

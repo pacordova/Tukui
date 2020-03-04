@@ -60,21 +60,21 @@ function TukuiUnitFrames:Nameplates()
 	Power.Smooth = true
 	Power.PostUpdate = TukuiUnitFrames.DisplayNameplatePowerAndCastBar
 
-	local Debuffs = CreateFrame("Frame", self:GetName()..'Debuffs', self)
-	Debuffs:SetHeight(24)
-	Debuffs:SetWidth(self:GetWidth())
-	Debuffs:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, -6)
-	Debuffs.size = 24
-	Debuffs.num = NumDebuffsPerRow
-	Debuffs.numRow = 1
-	Debuffs.disableMouse = true
-	Debuffs.spacing = 2
-	Debuffs.initialAnchor = "BOTTOMLEFT"
-	Debuffs["growth-y"] = "DOWN"
-	Debuffs["growth-x"] = "RIGHT"
-	Debuffs.PostCreateIcon = TukuiUnitFrames.PostCreateAura
-	Debuffs.PostUpdateIcon = TukuiUnitFrames.PostUpdateAura
-	Debuffs.onlyShowPlayer = C.NamePlates.OnlySelfDebuffs
+	-- local Debuffs = CreateFrame("Frame", self:GetName()..'Debuffs', self)
+	-- Debuffs:SetHeight(24)
+	-- Debuffs:SetWidth(self:GetWidth())
+	-- Debuffs:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, -6)
+	-- Debuffs.size = 24
+	-- Debuffs.num = NumDebuffsPerRow
+	-- Debuffs.numRow = 1
+	-- Debuffs.disableMouse = true
+	-- Debuffs.spacing = 2
+	-- Debuffs.initialAnchor = "BOTTOMLEFT"
+	-- Debuffs["growth-y"] = "DOWN"
+	-- Debuffs["growth-x"] = "RIGHT"
+	-- Debuffs.PostCreateIcon = TukuiUnitFrames.PostCreateAura
+	-- Debuffs.PostUpdateIcon = TukuiUnitFrames.PostUpdateAura
+	-- Debuffs.onlyShowPlayer = C.NamePlates.OnlySelfDebuffs
 	
 	if C.NamePlates.NameplateCastBar then
 		local CastBar = CreateFrame("StatusBar", "TukuiTargetCastBar", self)
@@ -125,7 +125,7 @@ function TukuiUnitFrames:Nameplates()
 
 	self.Health = Health
 	self.Buffs = Buffs
-	self.Debuffs = Debuffs
+	--self.Debuffs = Debuffs
 	self.Name = Name
 	self.Power = Power
 	self.RaidTargetIndicator = RaidIcon
