@@ -197,12 +197,8 @@ C["UnitFrames"] = {
 	["CastBarLatency"] = true,
 	["Smooth"] = true,
 	["TargetEnemyHostileColor"] = true,
-<<<<<<< HEAD
-	["CombatLog"] = false,
-=======
 	["ShowTargetManaText"] = false,
 	["CombatLog"] = true,
->>>>>>> b8a1c04a6a1390e1c598e1ef12ef085689946067
 	["PlayerAuras"] = false,
 	["TargetAuras"] = true,
 	["AurasBelow"] = false,
