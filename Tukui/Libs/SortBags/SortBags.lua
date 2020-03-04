@@ -7,11 +7,21 @@ local CONTAINERS
 
 function _G.SortBags()
 	CONTAINERS = {0, 1, 2, 3, 4}
+	for i = #CONTAINERS, 1, -1 do
+		if GetBagSlotFlag(i - 1, LE_BAG_FILTER_FLAG_IGNORE_CLEANUP) then
+			tremove(CONTAINERS, i)
+		end
+	end
 	Start()
 end
 
 function _G.SortBankBags()
 	CONTAINERS = {-1, 5, 6, 7, 8, 9, 10}
+	for i = #CONTAINERS, 1, -1 do
+		if GetBankBagSlotFlag(i - 1, LE_BAG_FILTER_FLAG_IGNORE_CLEANUP) then
+			tremove(CONTAINERS, i)
+		end
+	end
 	Start()
 end
 
@@ -134,12 +144,15 @@ do
 
 	local delay = 0
 	f:SetScript('OnUpdate', function(_, arg1)
+		if InCombatLockdown() or GetTime() > timeout then
+			f:Hide()
+			return
+		end
 		delay = delay - arg1
 		if delay <= 0 then
 			delay = .2
-
 			local complete = Sort()
-			if complete or GetTime() > timeout then
+			if complete then
 				f:Hide()
 				return
 			end
@@ -165,7 +178,7 @@ end
 function Move(src, dst)
     local texture, _, srcLocked = GetContainerItemInfo(src.container, src.position)
     local _, _, dstLocked = GetContainerItemInfo(dst.container, dst.position)
-    
+
 	if texture and not srcLocked and not dstLocked then
 		ClearCursor()
        	PickupContainerItem(src.container, src.position)
@@ -354,13 +367,13 @@ end
 function ContainerClass(container)
 	if container ~= 0 and container ~= BANK_CONTAINER then
 		local name = GetBagName(container)
-		if name then		
+		if name then
 			for class, info in pairs(CLASSES) do
 				for _, itemID in pairs(info.containers) do
 					if name == GetItemInfo(itemID) then
 						return class
 					end
-				end	
+				end
 			end
 		end
 	end
@@ -440,7 +453,7 @@ function Item(container, position)
 		elseif quality == 0 then
 			tinsert(sortKey, 14)
 		end
-		
+
 		tinsert(sortKey, classId)
 		tinsert(sortKey, slot)
 		tinsert(sortKey, subClassId)

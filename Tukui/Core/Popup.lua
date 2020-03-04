@@ -147,10 +147,21 @@ function TukuiPopups:ShowPopup()
 
 	Button1:HookScript("OnClick", TukuiPopups.HidePopup)
 	Button2:HookScript("OnClick", TukuiPopups.HidePopup)
-	
+
 	Popup.CurrentPopup = self
 
 	Popup:Show()
+end
+
+function TukuiPopups:HidePopupByName()
+	for i = 1, 4 do
+		local Popups = TukuiPopups.Frames
+		local Popup = Popups[i]
+
+		if Popup and Popup.CurrentPopup == self then
+			Popup:Hide()
+		end
+	end
 end
 
 TukuiPopups:RegisterEvent("PLAYER_LOGIN")

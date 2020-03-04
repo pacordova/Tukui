@@ -3,6 +3,7 @@ local T, C, L = select(2, ...):unpack()
 -- Hydra note: Since this file is going to be doing a lot of math/formatting, lets use locals for speed/cpu usage
 -- This means no calling functions as methods :P ("string"):format(...) or ("string"):gsub(...) should be format("string", ...) and gsub("string", ...) etc.
 
+local Infinity = math.huge
 local reverse = string.reverse
 local match = string.match
 local modf = math.modf
@@ -53,6 +54,10 @@ end
 
 -- Format seconds to min/hour/day
 T.FormatTime = function(s)
+	if s == Infinity then
+		return
+	end
+
 	local Day, Hour, Minute = 86400, 3600, 60
 
 	if (s >= Day) then

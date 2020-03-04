@@ -17,7 +17,7 @@ function TukuiActionBars:CreatePetBar()
 	local Spacing = C.ActionBars.ButtonSpacing
 	local PetActionBarFrame = PetActionBarFrame
 	local PetActionBar_UpdateCooldowns = PetActionBar_UpdateCooldowns
-	
+
 	PetActionBarFrame:EnableMouse(0)
 	PetActionBarFrame:ClearAllPoints()
 	PetActionBarFrame:SetParent(T.Hider)
@@ -47,7 +47,7 @@ function TukuiActionBars:CreatePetBar()
 
 	TukuiActionBars:SkinPetButtons()
 
-	RegisterStateDriver(Bar, "visibility", "[pet] show; hide")
+	RegisterStateDriver(Bar, "visibility", "[@pet,exists,nopossessbar]show;hide")
 
 	Movers:RegisterFrame(Bar)
 end

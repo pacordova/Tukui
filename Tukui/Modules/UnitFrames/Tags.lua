@@ -5,18 +5,23 @@ local TukuiUnitFrames = T["UnitFrames"]
 local DEAD = DEAD
 local CHAT_FLAG_AFK = CHAT_FLAG_AFK
 
+TukuiUnitFrames.ShortNameLength = 10
+
 oUF.Tags.Events["Tukui:GetRaidNameColor"] = "RAID_ROSTER_UPDATE GROUP_ROSTER_UPDATE"
 oUF.Tags.Methods["Tukui:GetRaidNameColor"] = function(unit)
-	--local Role = UnitGroupRolesAssigned(unit)
-	local R, G, B
+	local IsPlayer = UnitIsPlayer(unit)
+	local Reaction = UnitReaction(unit, "player")
+	local R, G, B = 1, 1, 1
 
-	--if Role == "TANK" then
-		--R, G, B = 0.4, 0.7, 1 -- Blue for tanks
-	--elseif Role == "HEALER" then
-		--R, G, B = 0, 1, 0 -- Green for healers
-	--else
-		R, G, B = 1, 1, 1 -- White for DPS or unknown role
-	--end
+	if IsPlayer then
+		local Class = select(2, UnitClass(unit))
+
+		if Class then
+			R, G, B = unpack(T.Colors.class[Class])
+		end
+	elseif Reaction then
+		R, G, B = unpack(T.Colors.reaction[Reaction])
+	end
 
 	return string.format("|cff%02x%02x%02x", R * 255, G * 255, B * 255)
 end
@@ -27,13 +32,13 @@ oUF.Tags.Methods["Tukui:GetNameColor"] = function(unit)
 
 	if (unit == "pet" and GetPetHappiness()) then
 		local c = T.Colors.happiness[GetPetHappiness()]
-		
+
 		return string.format('|cff%02x%02x%02x', c[1] * 255, c[2] * 255, c[3] * 255)
 	elseif (UnitIsPlayer(unit)) then
 		return _TAGS["raidcolor"](unit)
 	elseif (Reaction) then
 		local c = T.Colors.reaction[Reaction]
-		
+
 		return string.format("|cff%02x%02x%02x", c[1] * 255, c[2] * 255, c[3] * 255)
 	else
 		return string.format("|cff%02x%02x%02x", 1, 1, 1)
@@ -86,7 +91,7 @@ oUF.Tags.Methods["Tukui:NameShort"] = function(unit)
 	local IsAssistant = UnitIsGroupAssistant(unit) or UnitIsRaidOfficer(unit)
 	local Assist, Lead = IsAssistant and "[A] " or "", IsLeader and "[L] " or ""
 
-	return TukuiUnitFrames.UTF8Sub(Lead..Assist..Name, 10, false)
+	return TukuiUnitFrames.UTF8Sub(Lead..Assist..Name, TukuiUnitFrames.ShortNameLength, false)
 end
 
 oUF.Tags.Events["Tukui:NameMedium"] = "UNIT_NAME_UPDATE"

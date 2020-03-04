@@ -37,7 +37,12 @@ function AFK:OnUpdate(Elapsed)
 		self.Total = (self.Total or 0) + 1
 
 		self.LocalDate:SetFormattedText("%s", date( "%A |cffffffff%B %d|r"))
-		self.LocalTime:SetFormattedText("%s", date( "|cffffffff%I:%M:%S|r %p"))
+
+		if C.DataTexts.Hour24 then
+			self.LocalTime:SetFormattedText("%s", date( "|cffffffff%H:%M:%S|r"))
+		else
+			self.LocalTime:SetFormattedText("%s", date( "|cffffffff%I:%M:%S|r %p"))
+		end
 
 		AFK:UpdateTime(self.Total)
 
@@ -81,9 +86,15 @@ function AFK:OnEvent(event, ...)
 		end
 
 		if (event == "PLAYER_REGEN_DISABLED") then
-			self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnEvent")
+			self:RegisterEvent("PLAYER_REGEN_ENABLED", AFK.OnEvent)
 		end
 
+		return
+	end
+	
+	if (event == "ZONE_CHANGED") then
+		self:SetAFK(false)
+		
 		return
 	end
 
@@ -154,6 +165,7 @@ function AFK:Create()
 	self:RegisterEvent("PLAYER_FLAGS_CHANGED")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
+	self:RegisterEvent("ZONE_CHANGED")
 	self:SetScript("OnEvent", self.OnEvent)
 
 	UIParent:HookScript("OnShow", function(self) if UnitIsAFK("player") then SendChatMessage("", "AFK") AFK:SetAFK(false) end end)

@@ -4,15 +4,15 @@ local Loading = CreateFrame("Frame")
 
 function Loading:StoreDefaults()
 	T.Defaults = {}
-	
+
 	for group, options in pairs(C) do
 		if (not T.Defaults[group]) then
 			T.Defaults[group] = {}
 		end
-		
+
 		for option, value in pairs(options) do
 			T.Defaults[group][option] = value
-			
+
 			if (type(C[group][option]) == "table") then
 				if C[group][option].Options then
 					T.Defaults[group][option] = value.Value
@@ -28,15 +28,15 @@ end
 
 function Loading:LoadCustomSettings()
 	local Settings
-	
+
 	if (not TukuiSettingsPerCharacter) then
 		TukuiSettingsPerCharacter = {}
 	end
-	
+
 	if (not TukuiSettingsPerCharacter[T.MyRealm]) then
 		TukuiSettingsPerCharacter[T.MyRealm] = {}
 	end
-	
+
 	if (not TukuiSettingsPerCharacter[T.MyRealm][T.MyName]) then
 		if TukuiSettingsPerChar ~= nil then
 			-- old table for gui settings, TukuiSettingsPerChar is now deprecated and will be removed in a future build
@@ -45,17 +45,17 @@ function Loading:LoadCustomSettings()
 			TukuiSettingsPerCharacter[T.MyRealm][T.MyName] = {}
 		end
 	end
-	
+
 	if not TukuiSettings then
 		TukuiSettings = {}
 	end
-	
+
 	if TukuiSettingsPerCharacter[T.MyRealm][T.MyName].General and TukuiSettingsPerCharacter[T.MyRealm][T.MyName].General.UseGlobal == true then
 		Settings = TukuiSettings
 	else
 		Settings = TukuiSettingsPerCharacter[T.MyRealm][T.MyName]
 	end
-	
+
 	for group, options in pairs(Settings) do
 		if C[group] then
 			local Count = 0
@@ -66,7 +66,7 @@ function Loading:LoadCustomSettings()
 						Settings[group][option] = nil
 					else
 						Count = Count + 1
-						
+
 						if (type(C[group][option]) == "table") then
 							if C[group][option].Options then
 								C[group][option].Value = value
@@ -92,10 +92,10 @@ end
 
 function Loading:Enable()
 	local Toolkit = T00LKIT
-	
+
 	self:StoreDefaults()
 	self:LoadCustomSettings()
-	
+
 	Toolkit.Settings.BackdropColor = C.General.BackdropColor
 	Toolkit.Settings.BorderColor = C.General.BorderColor
 	Toolkit.Settings.UIScale = C.General.UIScale
@@ -113,6 +113,7 @@ function Loading:OnEvent(event)
 		T["Panels"]:Enable()
 		T["Inventory"]["Bags"]:Enable()
 		T["Inventory"]["Loot"]:Enable()
+		T["Inventory"]["GroupLoot"]:Enable()
 		T["Inventory"]["Merchant"]:Enable()
 		T["ActionBars"]:Enable()
 		T["Cooldowns"]:Enable()
@@ -128,6 +129,8 @@ function Loading:OnEvent(event)
 		T["Miscellaneous"]["UIWidgets"]:Enable()
 		T["Miscellaneous"]["AFK"]:Enable()
 		T["Miscellaneous"]["MicroMenu"]:Enable()
+		T["Miscellaneous"]["GuildNamesByClassColor"]:Enable()
+		T["Miscellaneous"]["Keybinds"]:Enable()
 		T["Auras"]:Enable()
 		--T["Maps"]["Minimap"]:Enable()
 		T["Maps"]["Zonemap"]:Enable()
@@ -136,7 +139,11 @@ function Loading:OnEvent(event)
 		T["Chat"]:Enable()
 		T["UnitFrames"]:Enable()
 		T["Tooltips"]:Enable()
-		
+
+		-- restore original stopwatch commands
+		SlashCmdList["STOPWATCH"] = Stopwatch_Toggle
+
+		-- welcome message
 		T.Print("Welcome |c"..RAID_CLASS_COLORS[T.MyClass].colorStr..T.MyName.."|r! For a commands list, type /tukui")
 	elseif (event == "PLAYER_ENTERING_WORLD") then
 		T["Miscellaneous"]["ObjectiveTracker"]:Enable()

@@ -63,11 +63,14 @@ C["Chat"] = {
 	["RightWidth"] = 370,
 	["RightHeight"] = 185,
 	["RightChatAlignRight"] = true,
+	["BackgroundAlpha"] = 80,
 	["WhisperSound"] = true,
 	["ShortChannelName"] = true,
 	["LinkColor"] = {0.08, 1, 0.36},
 	["LinkBrackets"] = true,
 	["ScrollByX"] = 3,
+	["TextFading"] = false,
+	["TextFadingTimer"] = 60,
 	["TabFont"] = "Tukui",
 	["ChatFont"] = "Tukui",
 }
@@ -87,16 +90,15 @@ C["DataTexts"] = {
 
 C["Loot"] = {
 	["Enable"] = true,
-	["StandardLoot"] = false,
 	["Font"] = "Tukui",
 }
 
 C["Misc"] = {
 	["WorldMapEnable"] = false,
 	["ExperienceEnable"] = true,
-	["ReputationEnable"] = true,
 	["ErrorFilterEnable"] = true,
 	["AutoSellJunk"] = true,
+	["AutoRepair"] = false,
 	["AFKSaver"] = false,
 	["FadeWorldMapWhileMoving"] = false,
 	["ObjectiveTrackerFont"] = "Tukui Outline",
@@ -109,14 +111,21 @@ C["NamePlates"] = {
 	["NameplateCastBar"] = true,
 	["Font"] = "Tukui Outline",
 	["OnlySelfDebuffs"] = true,
+	["HighlightColor"] = {1, 1, 0},
+	["HighlightSize"] = 10,
 }
 
 C["Party"] = {
 	["Enable"] = false,
+	["ShowPets"] = false,
 	["ShowPlayer"] = true,
+	["ShowHealthText"] = true,
+	["ShowManaText"] = false,
 	["RangeAlpha"] = 0.3,
-	["Font"] = "Tukui",
+	["Font"] = "Tukui Outline",
 	["HealthFont"] = "Tukui Outline",
+	["HighlightColor"] = {0, 1, 0},
+	["HighlightSize"] = 10,
 }
 
 C["Raid"] = {
@@ -129,6 +138,10 @@ C["Raid"] = {
 	["Font"] = "Tukui",
 	["HealthFont"] = "Tukui Outline",
 	["MyRaidBuffs"] = true,
+	["WidthSize"] = 79,
+	["HeightSize"] = 55,
+	["HighlightColor"] = {0, 1, 0},
+	["HighlightSize"] = 10,
 	["GroupBy"] = {
 		["Options"] = {
 			["Group"] = "GROUP",
@@ -166,10 +179,14 @@ C["Textures"] = {
 
 C["UnitFrames"] = {
 	["Enable"] = true,
+	["TotemBar"] = true,
+	["HealComm"] = true,
+	["PlayerAuraBars"] = false,
 	["ScrollingCombatText"] = false,
 	["ScrollingCombatTextFontSize"] = 32,
 	["ScrollingCombatTextFont"] = "Tukui Damage",
-	["EnergyTick"] = true,
+	["PowerTick"] = true,
+	["Portrait2D"] = true,
 	["OOCNameLevel"] = false,
 	["OOCPetNameLevel"] = false,
 	["Portrait"] = false,
@@ -180,10 +197,19 @@ C["UnitFrames"] = {
 	["CastBarLatency"] = true,
 	["Smooth"] = true,
 	["TargetEnemyHostileColor"] = true,
+<<<<<<< HEAD
 	["CombatLog"] = false,
+=======
+	["ShowTargetManaText"] = false,
+	["CombatLog"] = true,
+>>>>>>> b8a1c04a6a1390e1c598e1ef12ef085689946067
 	["PlayerAuras"] = false,
 	["TargetAuras"] = true,
+	["AurasBelow"] = false,
 	["OnlySelfDebuffs"] = false,
 	["OnlySelfBuffs"] = false,
 	["Font"] = "Tukui Outline",
+	["HealCommSelfColor"] = {0.29, 1, 0.30},
+	["HealCommOtherColor"] = {1, 1, 0.36},
+	["RaidIconSize"] = 24,
 }

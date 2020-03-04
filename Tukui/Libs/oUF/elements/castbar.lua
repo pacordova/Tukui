@@ -125,6 +125,10 @@ local function UNIT_SPELLCAST_START(self, event, unit)
 		return element:Hide()
 	end
 
+	if texture and texture == 136235 then
+		texture = "Interface\\ICONS\\INV_Misc_QuestionMark"
+	end
+
 	endTime = endTime / 1e3
 	startTime = startTime / 1e3
 	local max = endTime - startTime
@@ -286,6 +290,10 @@ local function UNIT_SPELLCAST_CHANNEL_START(self, event, unit, _, spellID)
 	local name, _, texture, startTime, endTime, _, notInterruptible = UnitChannelInfo(unit)
 	if(not name) then
 		return
+	end
+
+	if texture and texture == 136235 then
+		texture = "Interface\\ICONS\\INV_Misc_QuestionMark"
 	end
 
 	endTime = endTime / 1e3
@@ -510,7 +518,7 @@ local function Enable(self, unit)
 				self['UNIT_SPELLCAST_CHANNEL_START'] = UNIT_SPELLCAST_CHANNEL_START
 				self['UNIT_SPELLCAST_CHANNEL_UPDATE'] = UNIT_SPELLCAST_CHANNEL_UPDATE
 				self['UNIT_SPELLCAST_CHANNEL_STOP'] = UNIT_SPELLCAST_CHANNEL_STOP
-				
+
 				LibClassicCasterino.RegisterCallback(self, 'UNIT_SPELLCAST_START')
 				LibClassicCasterino.RegisterCallback(self, 'UNIT_SPELLCAST_DELAYED')
 				LibClassicCasterino.RegisterCallback(self, 'UNIT_SPELLCAST_STOP')
@@ -572,7 +580,7 @@ local function Disable(self)
 	local element = self.Castbar
 	if(element) then
 		element:Hide()
-		
+
 		if LibClassicCasterino then
 			LibClassicCasterino.UnregisterCallback(self, 'UNIT_SPELLCAST_START')
 			LibClassicCasterino.UnregisterCallback(self, 'UNIT_SPELLCAST_DELAYED')

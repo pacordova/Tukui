@@ -39,16 +39,16 @@ function TukuiActionBars:DisableBlizzard()
 	MultiActionBar_ShowAllGrids = function() end
 
 	ActionBarButtonEventsFrame:UnregisterEvent("ACTIONBAR_HIDEGRID")
-	
+
 	local Options = {
-		InterfaceOptionsActionBarsPanelBottomLeft, 
+		InterfaceOptionsActionBarsPanelBottomLeft,
 		InterfaceOptionsActionBarsPanelBottomRight,
 		InterfaceOptionsActionBarsPanelRight,
 		InterfaceOptionsActionBarsPanelRightTwo,
 		InterfaceOptionsActionBarsPanelStackRightBars,
 		InterfaceOptionsActionBarsPanelAlwaysShowActionBars,
 	}
-	
+
 	for i, j in pairs(Options) do
 		j:Hide()
 		j:Disable()
@@ -105,10 +105,11 @@ end
 function TukuiActionBars:MovePetBar()
 	local PetBar = TukuiPetActionBar
 	local RightBar = TukuiActionBar5
-	local Data = TukuiData[GetRealmName()][UnitName("Player")].Move.TukuiActionBar5
+	local Data1 = TukuiData[GetRealmName()][UnitName("Player")].Move.TukuiActionBar5
+	local Data2 = TukuiData[GetRealmName()][UnitName("Player")].Move.TukuiPetActionBar
 
-	-- Don't run if player moved bar 5
-	if Data then
+	-- Don't run if player moved bar 5 or pet bar
+	if Data1 or Data2 then
 		return
 	end
 
@@ -314,7 +315,7 @@ function TukuiActionBars:UpdateActionBarsScale()
 	-- Sometime Blizz rescale right screen bars, we don't want that
 	local LeftBar = MultiBarLeft
 	local RightBar = MultiBarRight
-	
+
 	LeftBar:SetScale(1)
 	RightBar:SetScale(1)
 end
@@ -340,7 +341,7 @@ function TukuiActionBars:Enable()
 	if not C.ActionBars.Enable then
 		return
 	end
-	
+
 	self:DisableBlizzard()
 	self:AddPanels()
 	self:CreateBar1()
@@ -355,7 +356,7 @@ function TukuiActionBars:Enable()
 	self:Bindings()
 	self:AddHooks()
 	self:LoadVariables()
-	
+
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 	self:SetScript("OnEvent", self.OnEvent)
 end

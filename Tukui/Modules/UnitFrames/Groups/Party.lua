@@ -14,17 +14,9 @@ function TukuiUnitFrames:Party()
 	self:SetScript("OnLeave", UnitFrame_OnLeave)
 	self:SetBackdrop(TukuiUnitFrames.Backdrop)
 	self:SetBackdropColor(0, 0, 0)
-	
+
 	self:CreateShadow()
-	
-	-- We need a shadow for highlighting target
-	if C.General.HideShadows then
-		self.Shadow:SetBackdrop( {
-			edgeFile = C.Medias.Glow, edgeSize = 4,
-			insets = {left = 4, right = 4, top = 4, bottom = 4},
-		})
-		self.Shadow:Hide()
-	end
+	self.Shadow:SetFrameLevel(2)
 
 	local Health = CreateFrame("StatusBar", nil, self)
 	Health:SetPoint("TOPLEFT")
@@ -36,10 +28,18 @@ function TukuiUnitFrames:Party()
 	Health.Background:SetAllPoints()
 	Health.Background:SetColorTexture(.1, .1, .1)
 
+	if C.Party.ShowHealthText then
+		Health.Value = Health:CreateFontString(nil, "OVERLAY")
+		Health.Value:SetFontObject(Font)
+		Health.Value:SetPoint("TOPRIGHT", -4, 6)
+		Health.PostUpdate = TukuiUnitFrames.PostUpdateHealth
+	end
+
 	Health.frequentUpdates = true
 	Health.colorDisconnected = true
 	Health.colorClass = true
 	Health.colorReaction = true
+	Health.isParty = true
 
 	if (C.UnitFrames.Smooth) then
 		Health.Smooth = true
@@ -57,15 +57,23 @@ function TukuiUnitFrames:Party()
 	Power.Background:SetColorTexture(.4, .4, .4)
 	Power.Background.multiplier = 0.3
 
+	if C.Party.ShowManaText then
+		Power.Value = Power:CreateFontString(nil, "OVERLAY")
+		Power.Value:SetFontObject(Font)
+		Power.Value:SetPoint("BOTTOMRIGHT", -4, 0)
+		Power.PostUpdate = TukuiUnitFrames.PostUpdatePower
+	end
+
 	Power.frequentUpdates = true
 	Power.colorPower = true
+	Power.isParty = true
 
 	if (C.UnitFrames.Smooth) then
 		Power.Smooth = true
 	end
 
 	local Name = Health:CreateFontString(nil, "OVERLAY")
-	Name:SetPoint("TOPLEFT", 4, 6)
+	Name:SetPoint("TOPLEFT", 4, 7)
 	Name:SetFontObject(Font)
 
 	local Buffs = CreateFrame("Frame", self:GetName()..'Buffs', self)
@@ -104,7 +112,7 @@ function TukuiUnitFrames:Party()
 	ReadyCheck:SetSize(16, 16)
 
 	local RaidIcon = Health:CreateTexture(nil, "OVERLAY")
-	RaidIcon:SetSize(16, 16)
+	RaidIcon:Size(C.UnitFrames.RaidIconSize)
 	RaidIcon:SetPoint("CENTER", Health, "CENTER")
 	RaidIcon:SetTexture([[Interface\AddOns\Tukui\Medias\Textures\Others\RaidIcons]])
 
@@ -112,6 +120,42 @@ function TukuiUnitFrames:Party()
 		insideAlpha = 1,
 		outsideAlpha = C["Party"].RangeAlpha,
 	}
+
+	if C.UnitFrames.HealComm then
+		local myBar = CreateFrame("StatusBar", nil, Health)
+		local otherBar = CreateFrame("StatusBar", nil, Health)
+
+		myBar:SetFrameLevel(Health:GetFrameLevel())
+		myBar:SetStatusBarTexture(HealthTexture)
+		myBar:SetPoint("TOP")
+		myBar:SetPoint("BOTTOM")
+		myBar:SetPoint("LEFT", Health:GetStatusBarTexture(), "RIGHT")
+		myBar:SetWidth(180)
+		myBar:SetStatusBarColor(unpack(C.UnitFrames.HealCommSelfColor))
+
+		otherBar:SetFrameLevel(Health:GetFrameLevel())
+		otherBar:SetPoint("TOP")
+		otherBar:SetPoint("BOTTOM")
+		otherBar:SetPoint("LEFT", myBar:GetStatusBarTexture(), "RIGHT")
+		otherBar:SetWidth(180)
+		otherBar:SetStatusBarTexture(HealthTexture)
+		otherBar:SetStatusBarColor(unpack(C.UnitFrames.HealCommOtherColor))
+
+		local HealthPrediction = {
+			myBar = myBar,
+			otherBar = otherBar,
+			maxOverflow = 1,
+		}
+
+		self.HealthPrediction = HealthPrediction
+	end
+
+	local Highlight = CreateFrame("Frame", nil, self)
+	Highlight:SetBackdrop({edgeFile = C.Medias.Glow, edgeSize = C.Party.HighlightSize})
+	Highlight:SetOutside(self, C.Party.HighlightSize, C.Party.HighlightSize)
+	Highlight:SetBackdropBorderColor(unpack(C.Party.HighlightColor))
+	Highlight:SetFrameLevel(0)
+	Highlight:Hide()
 
 	self.Health = Health
 	self.Health.bg = Health.Background
@@ -125,8 +169,10 @@ function TukuiUnitFrames:Party()
 	self.ReadyCheckIndicator = ReadyCheck
 	self.RaidTargetIndicator = RaidIcon
 	self.Range = Range
+	self.Range.Override = TukuiUnitFrames.UpdateRange
 	self:Tag(Name, "[level] [Tukui:NameLong]")
-	
+	self.Highlight = Highlight
+
 	self:RegisterEvent("PLAYER_TARGET_CHANGED", TukuiUnitFrames.Highlight, true)
 	self:RegisterEvent("RAID_ROSTER_UPDATE", TukuiUnitFrames.Highlight, true)
 end

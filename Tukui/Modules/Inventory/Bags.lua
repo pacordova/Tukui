@@ -21,7 +21,7 @@ local Bag_SoulShard = 2
 local Bag_Profession = 3
 local Bag_Quiver = 4
 local KEYRING_CONTAINER = KEYRING_CONTAINER
-local BAGTYPE_QUIVER = 0x0001 + 0x0002 
+local BAGTYPE_QUIVER = 0x0001 + 0x0002
 local BAGTYPE_SOUL = 0x004
 local BAGTYPE_PROFESSION = 0x0008 + 0x0010 + 0x0020 + 0x0040 + 0x0080 + 0x0200 + 0x0400
 
@@ -216,7 +216,7 @@ function Bags:CreateContainer(storagetype, ...)
 			BagsContainer:SetWidth((ButtonSize * getn(BlizzardBags)) + (ButtonSpacing * (getn(BlizzardBags) + 1)))
 			BagsContainer:SetHeight(ButtonSize + (ButtonSpacing * 2))
 		end
-		
+
 		SearchBox:SetFrameLevel(Container:GetFrameLevel() + 10)
 		SearchBox:SetMultiLine(false)
 		SearchBox:EnableMouse(true)
@@ -262,17 +262,17 @@ function Bags:CreateContainer(storagetype, ...)
 				if Purchase:IsShown() then
 					BanksContainer:SetPoint("BOTTOMLEFT", Purchase, "TOPLEFT", 50, 2)
 				end
-					
+
 				self.Texture:SetTexture(C.Medias.ArrowDown)
 			else
 				ReplaceBags = 0
 				BagsContainer:Hide()
 				BanksContainer:Hide()
-					
+
 				self.Texture:SetTexture(C.Medias.ArrowUp)
 			end
 		end)
-		
+
 		Sort:SetSize(16, 16)
 		Sort:SetPoint("RIGHT", ToggleBags, "LEFT", -2, 0)
 		Sort.Texture = Sort:CreateTexture(nil, "OVERLAY")
@@ -283,16 +283,16 @@ function Bags:CreateContainer(storagetype, ...)
 		Sort:SetScript("OnClick", function()
 			if InCombatLockdown() then
 				T.Print("You cannot sort your bag in combat")
-					
+
 				return
 			end
-			
+
 			if TukuiBank:IsShown() then
 				SetSortBagsRightToLeft(true)
 				SortBankBags()
 			else
-				SetSortBagsRightToLeft(false)
-				SortBags()	
+				SetSortBagsRightToLeft(true)
+				SortBags()
 			end
 		end)
 
@@ -336,7 +336,7 @@ function Bags:CreateContainer(storagetype, ...)
 
 		for i = 1, 6 do
 			local Bag = BankSlotsFrame["Bag"..i]
-			
+
 			Bag.HighlightFrame:SetAlpha(0)
 
 			Bag:SetParent(BankBagsContainer)
@@ -346,7 +346,7 @@ function Bags:CreateContainer(storagetype, ...)
 			Bag.IconBorder:SetAlpha(0)
 			Bag.icon:SetTexCoord(unpack(T.IconCoord))
 			Bag.icon:SetInside()
-			
+
 			Bag:SkinButton()
 			Bag:ClearAllPoints()
 
@@ -381,7 +381,7 @@ function Bags:SlotUpdate(id, button)
 	if (button.ItemID == ItemID) then
 		return
 	end
-	
+
 	if button.Quest then
 		button.Quest:Hide()
 	end
@@ -390,14 +390,14 @@ function Bags:SlotUpdate(id, button)
 
 	if itemLink then
 		local itemName, itemString, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture = GetItemInfo(itemLink)
-		
+
 		if itemString then
 			if (itemType == TRANSMOG_SOURCE_2) then
 				QuestItem = true
 			end
 		end
 	end
-	
+
 	if QuestItem then
 		if not button.QuestTex then
 			button.Quest = CreateFrame("Frame", nil, button)
@@ -411,7 +411,7 @@ function Bags:SlotUpdate(id, button)
 			button.Quest.Texture:SetSize(8, 16)
 			button.Quest.Texture:SetPoint("CENTER")
 		end
-		
+
 		button.Quest:Show()
 		button:SetBorderColor(1, 1, 0)
 	else
@@ -425,17 +425,19 @@ end
 
 function Bags:BagUpdate(id)
 	local Size = GetContainerNumSlots(id)
+	
+	local ID = (id == -2 and 6) or (id < 5 and id + 1) or (id + 2)
 
 	for Slot = 1, Size do
-		local Button = _G["ContainerFrame"..(id + 1).."Item"..Slot]
+		local Button = _G["ContainerFrame"..ID.."Item"..Slot]
 
 		if Button then
 			if not Button:IsShown() then
 				Button:Show()
 			end
-			
+
 			local BagType = Bags:GetBagType(id)
-			
+
 			if (BagType ~= 1) and (not Button.IsTypeStatusCreated) then
 				Button.TypeStatus = CreateFrame("StatusBar", nil, Button)
 				Button.TypeStatus:Point("BOTTOMLEFT", 1, 1)
@@ -445,7 +447,7 @@ function Bags:BagUpdate(id)
 
 				Button.IsTypeStatusCreated = true
 			end
-			
+
 			if BagType == 2 then
 				-- Warlock Soul Shards Slots
 				Button.TypeStatus:SetStatusBarColor(unpack(T.Colors.class["WARLOCK"]))
@@ -481,26 +483,31 @@ end
 
 function Bags:UpdateAllBags()
 	-- check if containers changed
-	for i = 1, 5 do
+	for i = 1, 6 do
 		local ContainerSize = _G["ContainerFrame"..i].size
-		
+
 		if ContainerSize ~= BagSize[i] then
 			NeedBagRefresh = true
-			
+
 			BagSize[i] = ContainerSize
 		end
 	end
-	
-	if not NeedBagRefresh then
+
+	if (not NeedBagRefresh) then
 		return
 	end
 
 	-- Refresh layout if a refresh if found
 	local NumRows, LastRowButton, NumButtons, LastButton = 0, ContainerFrame1Item1, 1, ContainerFrame1Item1
 	local FirstButton
-	
-	for Bag = 5, 1, -1 do
+
+	for Bag = 1, 6 do
 		local ID = Bag - 1
+		
+		if Bag == 6 then
+			ID = -2
+		end
+		
 		local Slots = GetContainerNumSlots(ID)
 
 		for Item = Slots, 1, -1 do
@@ -538,8 +545,17 @@ function Bags:UpdateAllBags()
 
 			if not Button.IsSkinned then
 				Bags.SkinBagButton(Button)
+				
+				-- Let's know users that it's a keyring slot
+				if Bag == 6 then
+					Button.Texture = Button:CreateTexture(nil, "OVERLAY")
+					Button.Texture:SetAllPoints()
+					Button.Texture:SetAlpha(0.2)
+					Button.Texture:Point("CENTER")
+					Button.Texture:SetTexture("Interface\\ContainerFrame\\KeyRing-Bag-Icon")
+				end
 			end
-			
+
 			if not Money.IsMoved then
 				Money:ClearAllPoints()
 				Money:Show()
@@ -553,7 +569,7 @@ function Bags:UpdateAllBags()
 
 		Bags:BagUpdate(ID)
 	end
-	
+
 	NeedBagRefresh = false
 
 	self.Bag:SetHeight(((ButtonSize + ButtonSpacing) * (NumRows + 1) + 64 + (ButtonSpacing * 4)) - ButtonSpacing)
@@ -561,16 +577,16 @@ end
 
 function Bags:UpdateAllBankBags()
 	-- check if containers changed
-	for i = 6, 11 do
+	for i = 7, 13 do
 		local ContainerSize = _G["ContainerFrame"..i].size
 
 		if ContainerSize ~= BagSize[i] then
 			NeedBankRefresh = true
-			
+
 			BagSize[i] = ContainerSize
 		end
 	end
-	
+
 	if not NeedBankRefresh then
 		return
 	end
@@ -617,8 +633,8 @@ function Bags:UpdateAllBankBags()
 
 	BankFrameMoneyFrame:Hide()
 
-	for Bag = 6, 11 do
-		local Slots = GetContainerNumSlots(Bag - 1)
+	for Bag = 7, 13 do
+		local Slots = GetContainerNumSlots(Bag - 2)
 
 		for Item = Slots, 1, -1 do
 			local Button = _G["ContainerFrame"..Bag.."Item"..Item]
@@ -643,12 +659,12 @@ function Bags:UpdateAllBankBags()
 			end
 
 			Bags.SkinBagButton(Button)
-			Bags.SlotUpdate(self, Bag - 1, Button)
+			Bags.SlotUpdate(self, Bag - 2, Button)
 
 			LastButton = Button
 		end
 	end
-	
+
 	NeedBankRefresh = false
 
 	Bags.Bank:SetHeight(((ButtonSize + ButtonSpacing) * (NumRows + 1) + 20) - ButtonSpacing)
@@ -678,7 +694,7 @@ function Bags:OpenBag(id)
 	OpenFrame:SetID(id)
 	OpenFrame:Show()
 
-	if (id == 4) then
+	if (id == -2) then
 		Bags:UpdateAllBags()
 	end
 end
@@ -688,11 +704,13 @@ function Bags:CloseBag(id)
 end
 
 function Bags:OpenAllBags()
-	self:OpenBag(0, 1)
+	self:OpenBag(0)
 
 	for i = 1, 4 do
-		self:OpenBag(i, 1)
+		self:OpenBag(i)
 	end
+	
+	self:OpenBag(-2)
 
 	if IsBagOpen(0) then
 		self.Bag:Show()
@@ -785,20 +803,14 @@ function Bags:ToggleBags()
 end
 
 function Bags:ToggleKeys()
-	-- Keys bag won't be available at launch, source:
-	-- https://us.forums.blizzard.com/en/wow/t/key-ring-in-classic/253354/19
-	
-	-- TODO
-	--   1- Move default position
-	--   2- Skin it on first open
-	--   3- Add toggle to micromenu
-	
-	OriginalToggleBag(KEYRING_CONTAINER)
+	-- Add a toggle for keys later because at the moment slots are always displayed.
 end
 
 function Bags:OnEvent(event, ...)
 	if (event == "BAG_UPDATE") then
 		self:BagUpdate(...)
+	elseif (event == "MERCHANT_CLOSED") then
+		CloseAllBags()
 	elseif (event == "CURRENCY_DISPLAY_UPDATE") then
 		BackpackTokenFrame_Update()
 	elseif (event == "BAG_CLOSED") then
@@ -809,7 +821,7 @@ function Bags:OnEvent(event, ...)
 		-- We need to hide buttons from a bag when closing it because they are not parented to the original frame
 		local Container = _G["ContainerFrame"..Bag]
 		local Size = Container.size
-		
+
 		if Size then
 			for i = 1, Size do
 				local Button = _G["ContainerFrame"..Bag.."Item"..i]
@@ -836,8 +848,9 @@ function Bags:OnEvent(event, ...)
 	elseif (event == "BANKFRAME_CLOSED") then
 		local Bank = self.Bank
 
-		Bank:Hide()
-		
+		self:CloseAllBags()
+		self:CloseAllBankBags()
+
 		-- Clear search on close
 		self.Bag.SearchBox:SetText("")
 	elseif (event == "BANKFRAME_OPENED") then
@@ -853,8 +866,8 @@ function Bags:Enable()
 		return
 	end
 
-	SetInsertItemsLeftToRight(true)
-	
+	SetInsertItemsLeftToRight(false)
+
 	-- Bug with mouse click
 	GroupLootContainer:EnableMouse(false)
 
@@ -908,11 +921,15 @@ function Bags:Enable()
 	self:RegisterEvent("BAG_CLOSED")
 	self:RegisterEvent("BANKFRAME_CLOSED")
 	self:RegisterEvent("BANKFRAME_OPENED")
+	self:RegisterEvent("MERCHANT_CLOSED")
 	self:SetScript("OnEvent", self.OnEvent)
 
-	if ContainerFrame5 then
-		ContainerFrame5:EnableMouse(false)
+	for i = 1, 6 do
+		_G["ContainerFrame"..i]:EnableMouse(false)
 	end
+	
+	-- Just in case some other addon are calling CloseAllBags
+	hooksecurefunc("CloseAllBags", function() CloseBag(-2) end)
 
 	ToggleAllBags()
 	ToggleAllBags()

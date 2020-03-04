@@ -9,6 +9,7 @@
 	<Script file="Inventory\Core.lua"/>
 	<Script file="Inventory\Bags.lua"/>
 	<Script file="Inventory\Loot.lua"/>
+	<Script file="Inventory\GroupLoot.lua"/>
 	<Script file="Inventory\Merchant.lua"/>
 
 	<!-- Action Bars -->
@@ -45,6 +46,8 @@
 	<Script file="Miscellaneous\AFK.lua"/>
 	<Script file="Miscellaneous\Grid.lua"/>
 	<Script file="Miscellaneous\UIErrorFilter.lua"/>
+	<Script file="Miscellaneous\GuildNamesByClassColor.lua"/>
+	<Script file="Miscellaneous\Keybinds.lua"/>
 
 	<!-- Auras -->
 	<Include file="Auras\Templates.xml"/>
@@ -76,6 +79,7 @@
 	<Script file="DataTexts\Elements\Micromenu.lua"/>
 	<Script file="DataTexts\Elements\Power.lua"/>
 	<Script file="DataTexts\Elements\Regen.lua"/>
+	<Script file="DataTexts\Elements\Stats.lua"/>
 	<Script file="DataTexts\Elements\Time.lua"/>
 	<Script file="DataTexts\Elements\Battleground.lua"/>
 	<Script file="DataTexts\Elements\Zone.lua"/>
