@@ -4,11 +4,15 @@ local Locale = GetLocale()
 
 C["Medias"] = {
 	-- Fonts
-	["Font"] = [[Interface\AddOns\Tukui\Medias\Fonts\PtSansNarrow.ttf]],
-	["UnitFrameFont"] = [[Interface\AddOns\Tukui\Medias\Fonts\BigNoodleTitling.ttf]],
+	--["Font"] = [[Interface\AddOns\Tukui\Medias\Fonts\PtSansNarrow.ttf]],
+	--["UnitFrameFont"] = [[Interface\AddOns\Tukui\Medias\Fonts\BigNoodleTitling.ttf]],
+	--["PixelFont"] = [=[Interface\AddOns\Tukui\Medias\Fonts\Visitor.ttf]=],
+	--["ActionBarFont"] = [[Interface\AddOns\Tukui\Medias\Fonts\Arial.ttf]],
+	["Font"] = [[Interface\AddOns\Tukui\Medias\Fonts\iosevka.ttf]],
+	["UnitFrameFont"] = [[Interface\AddOns\Tukui\Medias\Fonts\iosevka.ttf]],
+	["PixelFont"] = [=[Interface\AddOns\Tukui\Medias\Fonts\iosevka.ttf]=],
+	["ActionBarFont"] = [[Interface\AddOns\Tukui\Medias\Fonts\iosevka.ttf]],	
 	["DamageFont"] = [[Interface\AddOns\Tukui\Medias\Fonts\DieDieDie.ttf]],
-	["PixelFont"] = [=[Interface\AddOns\Tukui\Medias\Fonts\Visitor.ttf]=],
-	["ActionBarFont"] = [[Interface\AddOns\Tukui\Medias\Fonts\Arial.ttf]],
 
 	-- Textures
 	["Normal"] = [[Interface\AddOns\Tukui\Medias\Textures\Status\Tukui]],
