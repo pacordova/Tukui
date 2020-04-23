@@ -337,7 +337,7 @@ function TukuiChat:Install()
 	FCF_SetLocked(ChatFrame1, 1)
 	FCF_DockFrame(ChatFrame2)
 	FCF_SetLocked(ChatFrame2, 1)
-	FCF_OpenNewWindow(GENERAL)
+	FCF_OpenNewWindow(GLOBAL_CHANNELS)
 	FCF_SetLocked(ChatFrame3, 1)
 	FCF_DockFrame(ChatFrame3)
 	FCF_OpenNewWindow(self.RightChatName)
@@ -353,72 +353,73 @@ function TukuiChat:Install()
 end
 
 function TukuiChat:MoveChannels()
-	-- Remove everything in 3 and 4
+	local IsPublicChannelFound = EnumerateServerChannels()
+	
+	if not IsPublicChannelFound then
+		-- Restart this function until we are able to query public channels
+		T.Delay(1, TukuiChat.MoveChannels)
+		
+		return
+	end
+
+	local ChatGroup = {}
+	local Channels = {}
+	
+	for i=1, select("#", EnumerateServerChannels()), 1 do
+		Channels[i] = select(i, EnumerateServerChannels())
+	end
+	
+	-- Remove everything in first 4 chat windows
 	for i = 1, 4 do
 		if i ~= 2 then
 			local ChatFrame = _G["ChatFrame"..i]
 
 			ChatFrame_RemoveAllMessageGroups(ChatFrame)
+			ChatFrame_RemoveAllChannels(ChatFrame)
 		end
 	end
+	
+	-- Join public channels
+	for i = 1, #Channels do
+		SlashCmdList["JOIN"](Channels[i])
+	end
 
-	ChatFrame_AddMessageGroup(ChatFrame1, "SAY")
-	ChatFrame_AddMessageGroup(ChatFrame1, "EMOTE")
-	ChatFrame_AddMessageGroup(ChatFrame1, "YELL")
-	ChatFrame_AddMessageGroup(ChatFrame1, "GUILD")
-	ChatFrame_AddMessageGroup(ChatFrame1, "OFFICER")
-	ChatFrame_AddMessageGroup(ChatFrame1, "GUILD_ACHIEVEMENT")
-	ChatFrame_AddMessageGroup(ChatFrame1, "WHISPER")
-	ChatFrame_AddMessageGroup(ChatFrame1, "MONSTER_SAY")
-	ChatFrame_AddMessageGroup(ChatFrame1, "MONSTER_EMOTE")
-	ChatFrame_AddMessageGroup(ChatFrame1, "MONSTER_YELL")
-	ChatFrame_AddMessageGroup(ChatFrame1, "MONSTER_WHISPER")
-	ChatFrame_AddMessageGroup(ChatFrame1, "MONSTER_BOSS_EMOTE")
-	ChatFrame_AddMessageGroup(ChatFrame1, "MONSTER_BOSS_WHISPER")
-	ChatFrame_AddMessageGroup(ChatFrame1, "PARTY")
-	ChatFrame_AddMessageGroup(ChatFrame1, "PARTY_LEADER")
-	ChatFrame_AddMessageGroup(ChatFrame1, "RAID")
-	ChatFrame_AddMessageGroup(ChatFrame1, "RAID_LEADER")
-	ChatFrame_AddMessageGroup(ChatFrame1, "RAID_WARNING")
-	ChatFrame_AddMessageGroup(ChatFrame1, "INSTANCE_CHAT")
-	ChatFrame_AddMessageGroup(ChatFrame1, "INSTANCE_CHAT_LEADER")
-	ChatFrame_AddMessageGroup(ChatFrame1, "BG_HORDE")
-	ChatFrame_AddMessageGroup(ChatFrame1, "BG_ALLIANCE")
-	ChatFrame_AddMessageGroup(ChatFrame1, "BG_NEUTRAL")
-	ChatFrame_AddMessageGroup(ChatFrame1, "AFK")
-	ChatFrame_AddMessageGroup(ChatFrame1, "DND")
-	ChatFrame_AddMessageGroup(ChatFrame1, "ACHIEVEMENT")
-	ChatFrame_AddMessageGroup(ChatFrame1, "BN_WHISPER")
-	ChatFrame_AddMessageGroup(ChatFrame1, "BN_CONVERSATION")
+	-----------------------
+	-- ChatFrame 1 Setup --
+	-----------------------
+	
+	ChatGroup = {"SAY", "EMOTE", "YELL", "GUILD","OFFICER", "GUILD_ACHIEVEMENT", "WHISPER", "MONSTER_SAY", "MONSTER_EMOTE", "MONSTER_YELL", "MONSTER_WHISPER", "MONSTER_BOSS_EMOTE", "MONSTER_BOSS_WHISPER", "PARTY", "PARTY_LEADER", "RAID", "RAID_LEADER", "RAID_WARNING", "INSTANCE_CHAT", "INSTANCE_CHAT_LEADER", "BG_HORDE", "BG_ALLIANCE", "BG_NEUTRAL", "AFK", "DND", "ACHIEVEMENT", "BN_WHISPER", "BN_CONVERSATION"}
+	
+	for _, v in ipairs(ChatGroup) do
+		ChatFrame_AddMessageGroup(_G.ChatFrame1, v)
+	end
 
-	ChatFrame_AddMessageGroup(ChatFrame4, "COMBAT_XP_GAIN")
-	ChatFrame_AddMessageGroup(ChatFrame4, "COMBAT_HONOR_GAIN")
-	ChatFrame_AddMessageGroup(ChatFrame4, "COMBAT_FACTION_CHANGE")
-	ChatFrame_AddMessageGroup(ChatFrame4, "LOOT")
-	ChatFrame_AddMessageGroup(ChatFrame4, "MONEY")
-	ChatFrame_AddMessageGroup(ChatFrame4, "SYSTEM")
-	ChatFrame_AddMessageGroup(ChatFrame4, "ERRORS")
-	ChatFrame_AddMessageGroup(ChatFrame4, "IGNORED")
-	ChatFrame_AddMessageGroup(ChatFrame4, "SKILL")
-	ChatFrame_AddMessageGroup(ChatFrame4, "CURRENCY")
+	-----------------------
+	-- ChatFrame 3 Setup --
+	-----------------------
 
-	ChatFrame_RemoveChannel(ChatFrame1, "General")
-	ChatFrame_RemoveChannel(ChatFrame1, "Trade")
-	ChatFrame_RemoveChannel(ChatFrame1, "LocalDefense")
+	for i = 1, #Channels do
+		ChatFrame_RemoveChannel(ChatFrame1, Channels[i])
+		ChatFrame_AddChannel(ChatFrame3, Channels[i])
+	end
+	
+	-- Adjust Chat Colors
+	ChangeChatColor("CHANNEL1", 195/255, 230/255, 232/255)
+	ChangeChatColor("CHANNEL2", 232/255, 158/255, 121/255)
+	ChangeChatColor("CHANNEL3", 232/255, 228/255, 121/255)
+	ChangeChatColor("CHANNEL4", 0/255, 228/255, 121/255)
+	ChangeChatColor("CHANNEL5", 147/255, 130/255, 201/255)
+	ChangeChatColor("CHANNEL6", 0/255, 228/255, 0/255)
+	
+	-----------------------
+	-- ChatFrame 4 Setup --
+	-----------------------
 
-	ChatFrame_AddChannel(ChatFrame3, "General")
-	ChatFrame_AddChannel(ChatFrame3, "Trade")
-	ChatFrame_AddChannel(ChatFrame3, "LocalDefense")
-
-	T.Delay(5, function()
-		ChatFrame_RemoveChannel(ChatFrame1, "General")
-		ChatFrame_RemoveChannel(ChatFrame1, "Trade")
-		ChatFrame_RemoveChannel(ChatFrame1, "LocalDefense")
-
-		ChatFrame_AddChannel(ChatFrame3, "General")
-		ChatFrame_AddChannel(ChatFrame3, "Trade")
-		ChatFrame_AddChannel(ChatFrame3, "LocalDefense")
-	end)
+	ChatGroup = {"COMBAT_XP_GAIN", "COMBAT_HONOR_GAIN", "COMBAT_FACTION_CHANGE", "LOOT","MONEY", "SYSTEM", "ERRORS", "IGNORED", "SKILL", "CURRENCY"}
+	
+	for _, v in ipairs(ChatGroup) do
+		ChatFrame_AddMessageGroup(_G.ChatFrame4, v)
+	end
 end
 
 function TukuiChat:OnMouseWheel(delta)
@@ -452,8 +453,7 @@ function TukuiChat:SwitchSpokenDialect(button)
 end
 
 function TukuiChat:AddMessage(text, ...)
-	-- Short Channels
-	text = text:gsub('|h%[(%d+)%. .-%]|h', '|h[%1]|h')
+	text = text:gsub("|h%[(%d+)%. .-%]|h", "|h[%1]|h")
 
 	return self.DefaultAddMessage(self, text, ...)
 end
@@ -462,6 +462,7 @@ function TukuiChat:HideChatFrame(button, id)
 	local Panels = T.Panels
 	local Background = id == 1 and Panels.LeftChatBG or Panels.RightChatBG
 	local DataText = id == 1 and Panels.DataTextLeft or Panels.DataTextRight
+	local BG = T.DataTexts.BGFrame
 
 	Background:Hide()
 
@@ -471,6 +472,10 @@ function TukuiChat:HideChatFrame(button, id)
 
 		XP:SetParent(T.Hider)
 		Rep:SetParent(T.Hider)
+	end
+	
+	if BG then
+		BG:SetParent(T.Hider)
 	end
 
 	DataText:Hide()
@@ -502,6 +507,7 @@ function TukuiChat:ShowChatFrame(button, id)
 	local Panels = T.Panels
 	local Background = id == 1 and Panels.LeftChatBG or Panels.RightChatBG
 	local DataText = id == 1 and Panels.DataTextLeft or Panels.DataTextRight
+	local BG = T.DataTexts.BGFrame
 
 	Background:Show()
 
@@ -512,6 +518,10 @@ function TukuiChat:ShowChatFrame(button, id)
 		XP:SetParent(UIParent)
 		Rep:SetParent(UIParent)
 		Rep:SetFrameLevel(XP:GetFrameLevel() + 2)
+	end
+	
+	if BG then
+		BG:SetParent(UIParent)
 	end
 
 	DataText:Show()
@@ -696,4 +706,43 @@ function TukuiChat:AddHooks()
 	hooksecurefunc("FCF_RestorePositionAndDimensions", TukuiChat.SetChatFramePosition)
 	hooksecurefunc("FCF_SavePositionAndDimensions", TukuiChat.SaveChatFramePositionAndDimensions)
 	hooksecurefunc("FCFTab_UpdateAlpha", TukuiChat.NoMouseAlpha)
+end
+
+function TukuiChat:OverwriteFunctions()
+	-- Nickname color in chat, because altering RAID_CLASS_COLOR taint, so we overwrite GetColoredName() and use our own table.
+	function GetColoredName(event, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12)
+		local chatType = strsub(event, 10)
+
+		if (strsub(chatType, 1, 7) == "WHISPER") then
+			chatType = "WHISPER"
+		end
+
+		if (strsub(chatType, 1, 7) == "CHANNEL") then
+			chatType = "CHANNEL"..arg8
+		end
+
+		local info = ChatTypeInfo[chatType]
+
+		if (chatType == "GUILD") then
+			arg2 = Ambiguate(arg2, "guild")
+		else
+			arg2 = Ambiguate(arg2, "none")
+		end
+
+		if (arg12 and info and Chat_ShouldColorChatByClass(info)) then
+			local localizedClass, englishClass, localizedRace, englishRace, sex = GetPlayerInfoByGUID(arg12)
+
+			if (englishClass) then
+				local R, G, B = unpack(T.Colors.class[englishClass])
+
+				if (not R) then
+					return arg2
+				end
+
+				return string.format("\124cff%.2x%.2x%.2x", R * 255, G * 255, B * 255)..arg2.."\124r"
+			end
+		end
+
+		return arg2
+	end
 end

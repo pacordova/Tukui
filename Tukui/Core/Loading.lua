@@ -130,6 +130,7 @@ function Loading:OnEvent(event)
 		T["Miscellaneous"]["AFK"]:Enable()
 		T["Miscellaneous"]["MicroMenu"]:Enable()
 		T["Miscellaneous"]["GuildNamesByClassColor"]:Enable()
+		T["Miscellaneous"]["WhoNamesByClassColor"]:Enable()
 		T["Miscellaneous"]["Keybinds"]:Enable()
 		T["Auras"]:Enable()
 		--T["Maps"]["Minimap"]:Enable()
@@ -144,7 +145,8 @@ function Loading:OnEvent(event)
 		SlashCmdList["STOPWATCH"] = Stopwatch_Toggle
 
 		-- welcome message
-		T.Print("Welcome |c"..RAID_CLASS_COLORS[T.MyClass].colorStr..T.MyName.."|r! For a commands list, type /tukui")
+		local HexClassColor = T.RGBToHex(unpack(T.Colors.class[T.MyClass]))
+		T.Print("Welcome "..HexClassColor..T.MyName.."|r! For a commands list, type /tukui")
 	elseif (event == "PLAYER_ENTERING_WORLD") then
 		T["Miscellaneous"]["ObjectiveTracker"]:Enable()
 	elseif (event == "VARIABLES_LOADED") then

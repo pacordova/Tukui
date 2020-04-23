@@ -4,7 +4,7 @@
 
 local T, C, L = select(2, ...):unpack()
 
--- TEMP for bg bugs
+-- TEMP for bg popup taint bug
 local Battleground = CreateFrame("Frame", nil, UIParent)
 Battleground:SetFrameStrata("HIGH")
 Battleground:Size(400, 60)

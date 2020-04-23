@@ -5,6 +5,7 @@ local MyName = UnitName("player")
 local format = format
 local int = 2
 local BGFrame = CreateFrame("Frame", nil, UIParent)
+local Color = {}
 
 function BGFrame:OnEnter()
 	local NumScores = GetNumBattlefieldScores()
@@ -15,7 +16,6 @@ function BGFrame:OnEnter()
 
 		if (Name and Name == MyName) then
 			local CurrentMapID = C_Map.GetBestMapForUnit("player")
-			local Color = RAID_CLASS_COLORS[select(2, UnitClass("player"))]
 			local ClassColor = format("|cff%.2x%.2x%.2x", Color.r * 255, Color.g * 255, Color.b * 255)
 
 			GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT", 0, 4)
@@ -52,9 +52,9 @@ function BGFrame:OnUpdate(t)
 			local Name, KillingBlows, HonorableKills, Deaths, HonorGained = GetBattlefieldScore(i)
 
 			if (Name and Name == MyName) then
-				self.Text1:SetText(DataText.NameColor..COMBAT_TEXT_SHOW_HONOR_GAINED_TEXT.."|r"..DataText.ValueColor..HonorableKills.."|r")
-				self.Text2:SetText(DataText.NameColor..HONOR.."|r"..DataText.ValueColor..format("%d", HonorGained).."|r")
-				self.Text3:SetText(DataText.NameColor..KILLING_BLOWS.."|r"..DataText.ValueColor..KillingBlows.."|r")
+				self.Text1:SetText(DataText.NameColor..HONORABLE_KILLS..": |r"..DataText.ValueColor..HonorableKills.."|r")
+				self.Text2:SetText(DataText.NameColor..HONOR..": |r"..DataText.ValueColor..format("%d", HonorGained).."|r")
+				self.Text3:SetText(DataText.NameColor..KILLING_BLOWS..": |r"..DataText.ValueColor..KillingBlows.."|r")
 			end
 		end
 
@@ -80,7 +80,10 @@ function BGFrame:Enable()
 		return
 	end
 
+	Color.r, Color.g, Color.b = unpack(T.Colors.class[T.MyClass])
+
 	local DataTextLeft = T["Panels"].DataTextLeft
+
 	BGFrame:SetAllPoints(DataTextLeft)
 	BGFrame:SetTemplate()
 	BGFrame:SetFrameLevel(4)

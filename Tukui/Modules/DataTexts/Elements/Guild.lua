@@ -16,6 +16,7 @@ local officerNoteString = "  o: '%s'"
 
 local guildTable, guildXP, guildMotD = {}, {}, ""
 local totalOnline = 0
+local classc = {}
 
 local function BuildGuildTable()
 	totalOnline = 0
@@ -50,9 +51,9 @@ end
 
 local menuFrame = CreateFrame("Frame", "TukuiGuildRightClickMenu", UIParent, "UIDropDownMenuTemplate")
 local menuList = {
-	{ text = OPTIONS_MENU, isTitle = true,notCheckable=true},
-	{ text = INVITE, hasArrow = true,notCheckable=true,},
-	{ text = CHAT_MSG_WHISPER_INFORM, hasArrow = true,notCheckable=true,}
+	{ text = OPTIONS_MENU, isTitle = true, notCheckable=true},
+	{ text = INVITE, hasArrow = true, notCheckable=true, menuList = {}},
+	{ text = CHAT_MSG_WHISPER_INFORM, hasArrow = true, notCheckable=true, menuList = {}}
 }
 
 local function inviteClick(self, arg1, arg2, checked)
@@ -81,17 +82,18 @@ local OnMouseUp = function(self, btn)
 
 	GameTooltip_Hide()
 
-	local classc, levelc, grouped
+	wipe(classc)
+	local levelc, grouped
 	local menuCountWhispers = 0
 	local menuCountInvites = 0
 
-
-	menuList[2].menuList = {}
-	menuList[3].menuList = {}
+	wipe(menuList[2].menuList)
+	wipe(menuList[3].menuList)
 
 	for i = 1, #guildTable do
 		if (guildTable[i][7] and (guildTable[i][1] ~= UnitName("player") and guildTable[i][1] ~= UnitName("player").."-"..GetRealmName())) then
-			local classc, levelc = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[guildTable[i][9]], GetQuestDifficultyColor(guildTable[i][3])
+			levelc = GetQuestDifficultyColor(guildTable[i][3])
+			classc.r, classc.g, classc.b = unpack(T.Colors.class[guildTable[i][9]])
 
 			if UnitInParty(guildTable[i][1]) or UnitInRaid(guildTable[i][1]) then
 				grouped = "|cffaaaaaa*|r"
@@ -118,7 +120,8 @@ local OnEnter = function(self)
 	BuildGuildTable()
 
 	local name, rank, level, zone, note, officernote, connected, status, class, isMobile
-	local zonec, classc, levelc
+	local zonec, levelc
+	wipe(classc)
 	local online = totalOnline
 	local GuildInfo, GuildRank, GuildLevel = GetGuildInfo("player")
 
@@ -133,7 +136,7 @@ local OnEnter = function(self)
 		GameTooltip:AddLine(string.format(guildMotDString, GUILD_MOTD, guildMotD), ttsubh.r, ttsubh.g, ttsubh.b, 1)
 	end
 
-	local col = T.RGBToHex(ttsubh.r, ttsubh.g, ttsubh.b)
+	-- local col = T.RGBToHex(ttsubh.r, ttsubh.g, ttsubh.b) -- Unused??
 
 	if online > 1 then
 		local Count = 0
@@ -148,7 +151,8 @@ local OnEnter = function(self)
 
 			if connected and name ~= UnitName("player") then
 				if GetRealZoneText() == zone then zonec = activezone else zonec = inactivezone end
-				classc, levelc = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class], GetQuestDifficultyColor(level)
+				levelc = GetQuestDifficultyColor(level)
+				classc.r, classc.g, classc.b = unpack(T.Colors.class[class])
 
 				if isMobile then zone = "" end
 

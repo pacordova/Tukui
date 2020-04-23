@@ -15,6 +15,14 @@ TukuiError.Filter = {
 }
 
 function TukuiError:OnEvent(event, id, msg)
+	local ErrorName, SoundKitID, VoiceID = GetGameMessageInfo(id)
+	
+	if VoiceID then
+		PlayVocalErrorSoundID(VoiceID)
+	elseif SoundKitID then
+		PlaySound(SoundKitID)
+	end
+
 	if not self.Filter[msg] then
 		UIErrorsFrame:AddMessage(msg, 1, 0, 0)
 	end

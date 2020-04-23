@@ -209,8 +209,8 @@ function TukuiDT:AddDefaults()
 	TukuiData[GetRealmName()][UnitName("player")].Texts["Guild"] = {true, 1}
 	TukuiData[GetRealmName()][UnitName("player")].Texts["Durability"] = {true, 2}
 	TukuiData[GetRealmName()][UnitName("player")].Texts["Friends"] = {true, 3}
-	TukuiData[GetRealmName()][UnitName("player")].Texts["FPS & MS"] = {true, 4}
-	TukuiData[GetRealmName()][UnitName("player")].Texts["Memory"] = {true, 5}
+	TukuiData[GetRealmName()][UnitName("player")].Texts["System"] = {true, 4}
+	TukuiData[GetRealmName()][UnitName("player")].Texts["Micro Menu"] = {true, 5}
 	TukuiData[GetRealmName()][UnitName("player")].Texts["Gold"] = {true, 6}
 
 	if UnitLevel("player") == MAX_PLAYER_LEVEL then
@@ -245,7 +245,7 @@ function TukuiDT:Reset()
 					Object:Enable()
 					self.Anchors[Num]:SetData(Object)
 				else
-					T.Print("DataText '" .. Name .. "' not found. Removing from cache.")
+					T.Print("DataText '" .. Name .. "' not found. Removing. Replace with [|cff00ff00/tukui dt|r]")
 					TukuiData[GetRealmName()][UnitName("player")].Texts[Name] = {false, 0}
 				end
 			end
@@ -276,7 +276,7 @@ function TukuiDT:Load()
 						Object:Enable()
 						self.Anchors[Num]:SetData(Object)
 					else
-						T.Print("DataText '" .. Name .. "' not found. Removing from cache.")
+						T.Print("DataText '" .. Name .. "' not found. Removing. Replace with [|cff00ff00/tukui dt|r]")
 						TukuiData[GetRealmName()][UnitName("player")].Texts[Name] = {false, 0}
 					end
 				end
@@ -287,8 +287,9 @@ end
 
 function TukuiDT:Enable()
 	self.Font = T.GetFont(C["DataTexts"].Font)
-	self.NameColor = T.RGBToHex(unpack(C["DataTexts"].NameColor))
-	self.ValueColor = T.RGBToHex(unpack(C["DataTexts"].ValueColor))
+	self.NameColor = (C.DataTexts.ClassColor == true and T.RGBToHex(unpack(T.Colors.class[T.MyClass]))) or (T.RGBToHex(unpack(C["DataTexts"].NameColor)))
+	self.ValueColor = (C.DataTexts.ClassColor == true and T.RGBToHex(unpack(T.Colors.class[T.MyClass]))) or (T.RGBToHex(unpack(C["DataTexts"].ValueColor)))
+	self.HighlightColor = (T.RGBToHex(unpack(C["DataTexts"].HighlightColor)))
 	self:Load()
 	self:AddRemove()
 

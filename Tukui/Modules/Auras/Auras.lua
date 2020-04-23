@@ -99,6 +99,7 @@ function TukuiAuras:UpdateAura(index)
 
 		if (Duration > 0 and ExpirationTime) then
 			local TimeLeft = ExpirationTime - GetTime()
+
 			if (not self.TimeLeft) then
 				self.TimeLeft = TimeLeft
 				self:SetScript("OnUpdate", TukuiAuras.OnUpdate)
@@ -116,6 +117,10 @@ function TukuiAuras:UpdateAura(index)
 
 			if (not C.Auras.ClassicTimer) then
 				self.Holder:Show()
+			end
+
+			if (Duration == ceil(TimeLeft)) and (C.Auras.Animation and self.AuraGrowth) then
+				self.AuraGrowth:Play()
 			end
 		else
 			if C.Auras.Flash then
@@ -250,12 +255,6 @@ function TukuiAuras:Skin()
 		Shrink:SetScale(0.75, 0.75)
 
 		self.AuraGrowth = AuraGrowth
-
-		self:SetScript("OnShow", function(self)
-			if self.AuraGrowth then
-				self.AuraGrowth:Play()
-			end
-		end)
 	end
 
 	self.Duration = Duration

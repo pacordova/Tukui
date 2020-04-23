@@ -24,6 +24,7 @@ local BNGetFriendInfo = BNGetFriendInfo
 local C_FriendList_GetNumFriends = C_FriendList.GetNumFriends
 local C_FriendList_GetNumOnlineFriends = C_FriendList.GetNumOnlineFriends
 local C_FriendList_GetFriendInfoByIndex = C_FriendList.GetFriendInfoByIndex
+local classc = {r=1, g=1, b=1}
 
 Popups.Popup["BROADCAST"] = {
 	Question = BN_BROADCAST_TOOLTIP,
@@ -41,8 +42,8 @@ local menuFrame = CreateFrame("Frame", "TukuiFriendRightClickMenu", UIParent, "U
 
 local menuList = {
 	{ text = OPTIONS_MENU, isTitle = true, notCheckable = true},
-	{ text = INVITE, hasArrow = true, notCheckable = true, },
-	{ text = CHAT_MSG_WHISPER_INFORM, hasArrow = true, notCheckable = true, },
+	{ text = INVITE, hasArrow = true, notCheckable = true, menuList = {}},
+	{ text = CHAT_MSG_WHISPER_INFORM, hasArrow = true, notCheckable = true, menuList = {}},
 	{ text = PLAYER_STATUS, hasArrow = true, notCheckable = true,
 		menuList = {
 			{ text = "|cff2BC226"..AVAILABLE.."|r", notCheckable = true, func = function()
@@ -202,10 +203,10 @@ local OnMouseUp = function(self, btn)
 
 	local menuCountWhispers = 0
 	local menuCountInvites = 0
-	local classc, levelc
 
-	menuList[2].menuList = {}
-	menuList[3].menuList = {}
+	wipe(menuList[2].menuList)
+	wipe(menuList[3].menuList)
+	wipe(classc)
 
 	if BNTotalOnline > 0 then
 		local realID, grouped
@@ -217,10 +218,12 @@ local OnMouseUp = function(self, btn)
 				menuList[3].menuList[menuCountWhispers] = {text = "|cff00ccff"..RemoveTagNumber(BNTable[i][3].."|r"), arg1 = realID, arg2 = true, notCheckable=true, func = whisperClick}
 
 				if BNTable[i][6] == wowString and UnitFactionGroup("player") == BNTable[i][12] and BNTable[i][11] == T.MyRealm then
-					classc, levelc = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[BNTable[i][14]], GetQuestDifficultyColor(BNTable[i][16])
+					local levelc = GetQuestDifficultyColor(BNTable[i][16])
 
-					if classc == nil then
-						classc = GetQuestDifficultyColor(BNTable[i][16])
+					if T.Colors.class[BNTable[i][14]] then
+						classc.r, classc.g, classc.b = unpack(T.Colors.class[BNTable[i][14]])
+					else
+						classc.r, classc.g, classc.b = 1, 1, 1
 					end
 
 					if UnitInParty(BNTable[i][4]) or UnitInRaid(BNTable[i][4]) then
@@ -286,7 +289,8 @@ local OnEnter = function(self)
 
 	local totalonline = BNTotalOnline
 	local wowonline = C_FriendList_GetNumFriends()
-	local zonec, classc, levelc, realmc, grouped
+	local zonec, levelc, realmc, grouped
+	wipe(classc)
 	local DisplayLimit = floor((T.ScreenHeight / 100) * 2)
 
 	if (totalonline > 0) then
@@ -319,12 +323,13 @@ local OnEnter = function(self)
 									status = 3
 								end
 
-								classc = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[BNTable[i][14]]
-								levelc = GetQuestDifficultyColor(BNTable[i][16])
-
-								if not classc then
-									classc = {r=1, g=1, b=1}
+								if T.Colors.class[BNTable[i][14]] then
+									classc.r, classc.g, classc.b = unpack(T.Colors.class[BNTable[i][14]])
+								else
+									classc.r, classc.g, classc.b = 1, 1, 1
 								end
+
+								levelc = GetQuestDifficultyColor(BNTable[i][16])
 
 								if UnitInParty(BNTable[i][4]) or UnitInRaid(BNTable[i][4]) then
 									grouped = 1
@@ -405,7 +410,7 @@ local OnEnter = function(self)
 
 		---- Add wow friends listing
 		wipe(WoWTable)
-		
+
 		local WoWFriendCount = 0
 
 		for i = 1, wowonline do
@@ -434,7 +439,7 @@ local OnEnter = function(self)
 
 				WoWTable[i].hex = Hex
 				WoWFriendCount = WoWFriendCount + 1
-				
+
 				if WoWFriendCount == 1 then
 					GameTooltip:AddLine(" ")
 					GameTooltip:AddDoubleLine("|cffff8000World of Warcraft:|r", "|cffff8000"..C_FriendList.GetNumOnlineFriends().."/"..C_FriendList.GetNumFriends().."|r")
