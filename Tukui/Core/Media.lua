@@ -21,7 +21,7 @@ local TukuiUFFontOutline = CreateFont("TukuiUFFontOutline")
 TukuiUFFontOutline:SetFont(C["Medias"].UnitFrameFont, 12, "THINOUTLINE")
 
 local PixelFont = CreateFont("TukuiPixelFont")
-PixelFont:SetFont(C["Medias"].PixelFont, 12, "MONOCHROMEOUTLINE")
+PixelFont:SetFont(C["Medias"].PixelFont, 12)
 
 local TukuiDamageFont = CreateFont("TukuiDamageFont")
 TukuiDamageFont:SetFont(C["Medias"].DamageFont, 12, "OUTLINE")

@@ -8,9 +8,9 @@ C["Medias"] = {
 	--["UnitFrameFont"] = [[Interface\AddOns\Tukui\Medias\Fonts\BigNoodleTitling.ttf]],
 	--["PixelFont"] = [=[Interface\AddOns\Tukui\Medias\Fonts\Visitor.ttf]=],
 	--["ActionBarFont"] = [[Interface\AddOns\Tukui\Medias\Fonts\Arial.ttf]],
-	["Font"] = [[Interface\AddOns\Tukui\Medias\Fonts\iosevka.ttf]],
-	["UnitFrameFont"] = [[Interface\AddOns\Tukui\Medias\Fonts\iosevka.ttf]],
-	["PixelFont"] = [=[Interface\AddOns\Tukui\Medias\Fonts\iosevka.ttf]=],
+	["Font"] = [[Interface\AddOns\Tukui\Medias\Fonts\fontin.ttf]],
+	["UnitFrameFont"] = [[Interface\AddOns\Tukui\Medias\Fonts\BigNoodleTitling.ttf]],
+	["PixelFont"] = [[Interface\AddOns\Tukui\Medias\Fonts\iosevka.ttf]],
 	["ActionBarFont"] = [[Interface\AddOns\Tukui\Medias\Fonts\iosevka.ttf]],	
 	["DamageFont"] = [[Interface\AddOns\Tukui\Medias\Fonts\DieDieDie.ttf]],
 

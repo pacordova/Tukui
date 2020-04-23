@@ -71,8 +71,8 @@ C["Chat"] = {
 	["ScrollByX"] = 3,
 	["TextFading"] = false,
 	["TextFadingTimer"] = 60,
-	["TabFont"] = "Tukui",
-	["ChatFont"] = "Tukui",
+	["TabFont"] = "Pixel",
+	["ChatFont"] = "Pixel",
 }
 
 C["Cooldowns"] = {

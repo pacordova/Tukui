@@ -122,6 +122,7 @@ function TukuiChat:StyleFrame(frame)
 
 	-- Disable alt key usage
 	EditBox:SetAltArrowKeyMode(false)
+	EditBox:SetFont(TabFont, TabFontSize, TabFontFlags)
 
 	-- Hide editbox on login
 	EditBox:Hide()

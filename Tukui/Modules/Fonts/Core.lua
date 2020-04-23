@@ -23,18 +23,23 @@ end
 function TukuiFonts:ChangeWoWFonts()
 	local SetFont = self.SetFont
 	local NORMAL = C.Medias.Font
+	local REALNORMAL = C.Medias.Font
 	local COMBAT = C.Medias.DamageFont
 	local NUMBER = C.Medias.Font
+	local CAPSLOCK = C.Medias.UnitFrameFont
 
 	UIDROPDOWNMENU_DEFAULT_TEXT_HEIGHT = 12
 	CHAT_FONT_HEIGHTS = {12, 13, 14, 15, 16, 17, 18, 19, 20}
 
-	UNIT_NAME_FONT = NORMAL
+	UNIT_NAME_FONT = CAPSLOCK
 	DAMAGE_TEXT_FONT = COMBAT
 	STANDARD_TEXT_FONT = NORMAL
 
 	-- Base fonts
 	SetFont(GameTooltipHeader, NORMAL, 12)
+	SetFont(GameTooltipText, NORMAL, 12)
+	SetFont(GameTooltipTextSmall, NORMAL, 12)
+	SetFont(GameFontHighlightSmall, NORMAL, 12)
 	SetFont(NumberFont_OutlineThick_Mono_Small, NUMBER, 12, "OUTLINE")
 	SetFont(NumberFont_Outline_Huge, NUMBER, 28, "THICKOUTLINE", 28)
 	SetFont(NumberFont_Outline_Large, NUMBER, 15, "OUTLINE")
