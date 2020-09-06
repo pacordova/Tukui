@@ -712,23 +712,23 @@ function TukuiUnitFrames:CreateUnits()
 
 	if C.UnitFrames.Enable then
 		local Player = oUF:Spawn("player", "TukuiPlayerFrame")
-		Player:SetPoint("BOTTOM", UIParent, "BOTTOM", -260, 256)
+		Player:SetPoint("BOTTOM", UIParent, "BOTTOM", -260, 200)
 		Player:SetParent(UIParent)
 		Player:Size(250, 57)
 
 		local Target = oUF:Spawn("target", "TukuiTargetFrame")
-		Target:SetPoint("BOTTOM", UIParent, "BOTTOM", 260, 256)
+		Target:SetPoint("BOTTOM", UIParent, "BOTTOM", 260, 200)
 		Target:SetParent(UIParent)
 		Target:Size(250, 57)
 
 		local TargetOfTarget = oUF:Spawn("targettarget", "TukuiTargetTargetFrame")
-		TargetOfTarget:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 256)
+		TargetOfTarget:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 200)
 		TargetOfTarget:SetParent(UIParent)
 		TargetOfTarget:Size(129, 36)
 
 		local Pet = oUF:Spawn("pet", "TukuiPetFrame")
 		Pet:SetParent(UIParent)
-		Pet:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 318)
+		Pet:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 250)
 		Pet:Size(129, 36)
 
 		self.Units.Player = Player
@@ -759,7 +759,7 @@ function TukuiUnitFrames:CreateUnits()
 		if C.Raid.Enable then
 			local Raid = oUF:SpawnHeader(TukuiUnitFrames:GetRaidFramesAttributes())
 			Raid:SetParent(UIParent)
-			Raid:Point("TOPLEFT", UIParent, "TOPLEFT", 12, -200)
+			Raid:Point("TOPLEFT", UIParent, "TOPLEFT", 12, -180)
 
 			if C.Raid.ShowPets then
 				local Pet = oUF:SpawnHeader(TukuiUnitFrames:GetPetRaidFramesAttributes())
