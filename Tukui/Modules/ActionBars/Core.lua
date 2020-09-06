@@ -162,7 +162,7 @@ function TukuiActionBars:AddPanels()
 
 	-- Bar #5
 	local A5 = CreateFrame("Frame", "TukuiActionBar5", UIParent, "SecureHandlerStateTemplate")
-	A5:SetPoint("RIGHT", UIParent, "RIGHT", -28, 8)
+	A5:SetPoint("RIGHT", UIParent, "RIGHT", -1650, -492)
 	A5:SetFrameStrata("LOW")
 	A5:SetFrameLevel(10)
 	A5.Backdrop = CreateFrame("Frame", nil, A5)

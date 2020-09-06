@@ -381,13 +381,13 @@ function ActionBars:LoadVariables()
 	end
 
 	-- Hide more buttons
-	for bar = 4, 5 do
-		if Data["Bar"..bar.."Buttons"] then
-			for button = 1, (12 - Data["Bar"..bar.."Buttons"]) do
-				self:RemoveButton(T.Panels["ActionBar"..bar], bar)
-			end
-		end
-	end
+	-- for bar = 4, 5 do
+		-- if Data["Bar"..bar.."Buttons"] then
+			-- for button = 1, (12 - Data["Bar"..bar.."Buttons"]) do
+				-- self:RemoveButton(T.Panels["ActionBar"..bar], bar)
+			-- end
+		-- end
+	-- end
 
 	-- Hide Bars
 	for i = 2, 5 do
