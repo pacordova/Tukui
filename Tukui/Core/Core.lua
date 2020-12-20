@@ -139,3 +139,7 @@ T.Delay = function(delay, func, ...)
 	Timer:SetDuration(delay)
 	Timer.Parent:Play()
 end
+
+local LSM = LibStub("LibSharedMedia-3.0")
+LSM:Register("font", "bignoodle", [[Interface\Addons\Tukui\Medias\Fonts\BigNoodleTitling.ttf]])
+

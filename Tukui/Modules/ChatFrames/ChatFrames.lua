@@ -219,7 +219,7 @@ function TukuiChat:SetDefaultChatFramesPositions()
 		if (ID == 1) then
 			Frame:ClearAllPoints()
 			Frame:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", 34, 50)
-		elseif (ID == 4) then
+		elseif (ID ==2) then
 			Frame:ClearAllPoints()
 			Frame:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -34, 50)
 		end
@@ -229,7 +229,7 @@ function TukuiChat:SetDefaultChatFramesPositions()
 		end
 
 		if (ID == 2) then
-			FCF_SetWindowName(Frame, "Log")
+			FCF_SetWindowName(Frame, " ")
 		end
 
 		if (not Frame.isLocked) then
@@ -297,7 +297,7 @@ function TukuiChat:SetChatFramePosition()
 				Frame:SetPoint("BOTTOMLEFT", Panels.DataTextLeft, "TOPLEFT", 0, 2)
 
 				Movers:RegisterFrame(T.Panels.DataTextLeft)
-			elseif (ID == 4) then
+			elseif (ID == 2) then
 				if Frame:IsShown() and not Frame.isDocked then
 					Frame:SetParent(Panels.DataTextRight)
 					Frame:SetUserPlaced(true)
@@ -324,7 +324,7 @@ function TukuiChat:SetChatFramePosition()
 			Frame:SetPoint(Anchor1, UIParent, Anchor2, X, Y)
 			Frame:SetSize(Width, Height)
 
-			if (ID == 4) and (C.Chat.RightChatAlignRight) then
+			if (ID ==2) and (C.Chat.RightChatAlignRight) then
 				Frame:SetJustifyH("RIGHT")
 			end
 		end
@@ -336,12 +336,13 @@ function TukuiChat:Install()
 	FCF_ResetChatWindows()
 	FCF_SetLocked(ChatFrame1, 1)
 	FCF_DockFrame(ChatFrame2)
-	FCF_SetLocked(ChatFrame2, 1)
+	FCF_UnDockFrame(ChatFrame2)
 	FCF_OpenNewWindow(GLOBAL_CHANNELS)
 	FCF_SetLocked(ChatFrame3, 1)
 	FCF_DockFrame(ChatFrame3)
 	FCF_OpenNewWindow(self.RightChatName)
-	FCF_UnDockFrame(ChatFrame4)
+	FCF_SetLocked(ChatFrame4, 1)
+	FCF_DockFrame(ChatFrame4)
 	FCF_SetChatWindowFontSize(nil, ChatFrame1, 12)
 	FCF_SetChatWindowFontSize(nil, ChatFrame2, 12)
 	FCF_SetChatWindowFontSize(nil, ChatFrame3, 12)

@@ -712,12 +712,12 @@ function TukuiUnitFrames:CreateUnits()
 
 	if C.UnitFrames.Enable then
 		local Player = oUF:Spawn("player", "TukuiPlayerFrame")
-		Player:SetPoint("BOTTOM", UIParent, "BOTTOM", -260, 200)
+		Player:SetPoint("BOTTOM", UIParent, "BOTTOM", -220, 200)
 		Player:SetParent(UIParent)
 		Player:Size(250, 57)
 
 		local Target = oUF:Spawn("target", "TukuiTargetFrame")
-		Target:SetPoint("BOTTOM", UIParent, "BOTTOM", 260, 200)
+		Target:SetPoint("BOTTOM", UIParent, "BOTTOM", 220, 200)
 		Target:SetParent(UIParent)
 		Target:Size(250, 57)
 
